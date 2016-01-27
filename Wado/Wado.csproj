@@ -101,6 +101,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Models\IDicomImageFinderService.cs" />
     <Compile Include="Models\TestDicomImageFinderService.cs" />
