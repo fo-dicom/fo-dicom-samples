@@ -1,3 +1,5 @@
+<img src="https://lh3.googleusercontent.com/-Fq3nigRUo7U/VfaIPuJMjfI/AAAAAAAAALo/7oaLrrTBhnw/s1600/Fellow%2BOak%2BSquare%2BTransp.png" alt="fo-dicom logo" height="80" />
+
 # Fellow Oak DICOM Samples
 Sample applications associated with the [fo-dicom](https://github.com/fo-dicom/fo-dicom) framework.
 
