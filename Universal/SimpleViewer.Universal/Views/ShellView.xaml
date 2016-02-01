@@ -9,9 +9,18 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel>
-        <TextBox x:Name="Name" />
-        <Button x:Name="SayHello"
-                Content="Click Me" />
-    </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <Image Grid.Row="0" Grid.Column="1" x:Name="Image"/>
+        <CommandBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" IsSticky="True">
+            <AppBarButton x:Name="OpenFile" Icon="OpenFile" Label="Open DICOM File..."/>
+        </CommandBar>
+    </Grid>
 </UserControl>
