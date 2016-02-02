@@ -2,25 +2,39 @@
     x:Class="SimpleViewer.Universal.Views.ShellView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:SimpleViewer.Universal.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:SimpleViewer.Universal.Converters"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
-
+    <UserControl.Resources>
+        <converters:DicomFileToDumpConverter x:Key="FileToDump"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="3*"/>
-        </Grid.ColumnDefinitions>
-        <Image Grid.Row="0" Grid.Column="1" x:Name="Image"/>
-        <CommandBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" IsSticky="True">
-            <AppBarButton x:Name="OpenFile" Icon="OpenFile" Label="Open DICOM File..."/>
+        <Grid Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Auto">
+                <TextBlock Text="{Binding File, Converter={StaticResource FileToDump}}" FontFamily="Consolas"/>
+            </ScrollViewer>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Image Grid.Row="0" x:Name="CurrentImage"/>
+                <Slider x:Name="CurrentImageIndex" Grid.Row="1" Minimum="0" Maximum="{Binding NumberOfImages}"/>
+            </Grid>
+        </Grid>
+        <CommandBar Grid.Row="0" Grid.Column="0" IsSticky="True">
+            <AppBarButton x:Name="OpenFiles" Icon="OpenFile" Label="Open DICOM File"/>
         </CommandBar>
     </Grid>
 </UserControl>

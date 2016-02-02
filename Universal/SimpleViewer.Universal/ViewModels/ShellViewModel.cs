@@ -4,10 +4,9 @@
 namespace SimpleViewer.Universal.ViewModels
 {
     using System;
-    using System.IO;
+    using System.Collections.Generic;
+    using System.Linq;
 
-    using Windows.Storage.Pickers;
-    using Windows.UI.Popups;
     using Windows.UI.Xaml.Media;
 
     using Caliburn.Micro;
@@ -15,15 +14,30 @@ namespace SimpleViewer.Universal.ViewModels
     using Dicom;
     using Dicom.Imaging;
 
+    using SimpleViewer.Universal.Services;
+
     public class ShellViewModel : PropertyChangedBase
     {
         #region FIELDS
 
-        string name;
+        private readonly IDicomFileReaderService readerService;
 
         private DicomFile file;
 
-        private ImageSource image;
+        private int currentImageIndex;
+
+        private IList<ImageSource> images;
+
+        private int numberOfImages;
+
+        #endregion
+
+        #region CONSTRUCTORS
+
+        public ShellViewModel(IDicomFileReaderService readerService)
+        {
+            this.readerService = readerService;
+        }
 
         #endregion
 
@@ -46,46 +60,75 @@ namespace SimpleViewer.Universal.ViewModels
             }
         }
 
-        public ImageSource Image
+        public int NumberOfImages
         {
             get
             {
-                return this.image;
+                return this.numberOfImages;
             }
-            private set
+            set
             {
-                if (Equals(value, this.image))
+                if (value == this.numberOfImages)
                 {
                     return;
                 }
-                this.image = value;
-                this.NotifyOfPropertyChange(() => this.Image);
+                this.numberOfImages = value;
+                this.NotifyOfPropertyChange(() => this.NumberOfImages);
+                this.CurrentImageIndex = 0;
             }
         }
+
+        public int CurrentImageIndex
+        {
+            get
+            {
+                return this.currentImageIndex;
+            }
+            set
+            {
+                this.currentImageIndex = value;
+                this.NotifyOfPropertyChange(() => this.CurrentImageIndex);
+                this.NotifyOfPropertyChange(() => this.CurrentImage);
+            }
+        }
+
+        public ImageSource CurrentImage
+            => this.NumberOfImages > 0 ? this.images[Math.Max(this.CurrentImageIndex - 1, 0)] : null;
 
         #endregion
 
         #region METHODS
 
-        public async void OpenFile()
+        public async void OpenFiles()
         {
-            var picker = new FileOpenPicker();
-            picker.FileTypeFilter.Add(".dcm");
-            var selected = await picker.PickSingleFileAsync();
-            if (selected == null) return;
-            
-            var stream = await selected.OpenStreamForReadAsync();
-
-            this.File = await DicomFile.OpenAsync(stream);
-            this.Image = null;
-
-            if (this.File != null)
+            var files = await this.readerService.GetFilesAsync();
+            if (files == null || files.Count == 0)
             {
-                var dicomImage = new DicomImage(this.File.Dataset);
-                if (dicomImage.Width > 0)
-                {
-                    this.Image = dicomImage.RenderImage().AsWriteableBitmap();
-                }
+                return;
+            }
+
+            this.images = null;
+            this.File = null;
+            this.NumberOfImages = 0;
+
+            if (files.Count == 1)
+            {
+                this.File = files.Single();
+            }
+
+            var imageFiles = files.Where(f => f.Dataset.Contains(DicomTag.PixelData)).ToList();
+            if (imageFiles.Count > 0)
+            {
+                this.images = imageFiles.SelectMany(
+                    imageFile =>
+                        {
+                            var dicomImage = new DicomImage(imageFile.Dataset);
+                            return
+                                Enumerable.Range(0, dicomImage.NumberOfFrames)
+                                    .Select(frame => dicomImage.RenderImage(frame).As<ImageSource>());
+                        }).ToList();
+
+                this.NumberOfImages = this.images.Count;
             }
         }
 

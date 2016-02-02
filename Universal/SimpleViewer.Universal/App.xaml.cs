@@ -9,6 +9,7 @@ namespace SimpleViewer.Universal
 
     using Caliburn.Micro;
 
+    using SimpleViewer.Universal.Services;
     using SimpleViewer.Universal.ViewModels;
 
     public sealed partial class App
@@ -25,7 +26,7 @@ namespace SimpleViewer.Universal
             container = new WinRTContainer();
             container.RegisterWinRTServices();
 
-            container.PerRequest<ShellViewModel>();
+            container.Singleton<IDicomFileReaderService, DicomFileReaderService>().PerRequest<ShellViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)
