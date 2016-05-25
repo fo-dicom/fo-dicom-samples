@@ -7,6 +7,7 @@ using Dicom.Log;
 
 using Serilog;
 using Serilog.Enrichers;
+using Serilog.Sinks.RollingFile;
 
 namespace Dicom.Demo.SerilogDemo
 {
