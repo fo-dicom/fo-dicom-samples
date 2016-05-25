@@ -37,12 +37,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dicom.Core, Version=2.0.1.0, Culture=neutral, PublicKeyToken=3a13f649e28eb09a, processorArchitecture=MSIL">
-      <HintPath>..\packages\fo-dicom.Core.2.0.1\lib\portable-net45+netcore45+wpa81\Dicom.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Dicom.Platform, Version=2.0.1.0, Culture=neutral, PublicKeyToken=3a13f649e28eb09a, processorArchitecture=MSIL">
-      <HintPath>..\packages\fo-dicom.Platform.2.0.1\lib\net45\Dicom.Platform.dll</HintPath>
+    <Reference Include="Dicom.Core, Version=2.9.9.0, Culture=neutral, PublicKeyToken=3a13f649e28eb09a, processorArchitecture=MSIL">
+      <HintPath>..\packages\fo-dicom.Desktop.3.0.0-beta1\lib\net452\Dicom.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -72,12 +68,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\fo-dicom.Platform.2.0.1\build\net45\fo-dicom.Platform.targets" Condition="Exists('..\packages\fo-dicom.Platform.2.0.1\build\net45\fo-dicom.Platform.targets')" />
+  <Import Project="..\packages\fo-dicom.Desktop.3.0.0-beta1\build\net452\fo-dicom.Desktop.targets" Condition="Exists('..\packages\fo-dicom.Desktop.3.0.0-beta1\build\net452\fo-dicom.Desktop.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\fo-dicom.Platform.2.0.1\build\net45\fo-dicom.Platform.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\fo-dicom.Platform.2.0.1\build\net45\fo-dicom.Platform.targets'))" />
+    <Error Condition="!Exists('..\packages\fo-dicom.Desktop.3.0.0-beta1\build\net452\fo-dicom.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\fo-dicom.Desktop.3.0.0-beta1\build\net452\fo-dicom.Desktop.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

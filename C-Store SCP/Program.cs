@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 using Dicom.Log;
 using Dicom.Network;
@@ -20,7 +21,7 @@ namespace Dicom.CStoreSCP
 
 
             // start DICOM server on port 11112
-            var server = new DicomServer<CStoreSCP>(11112);
+            var server = DicomServer.Create<CStoreSCP>(11112);
 
 
             // end process
@@ -73,8 +74,8 @@ namespace Dicom.CStoreSCP
                                                                                              .ImplicitVRLittleEndian
                                                                                      };
 
-            public CStoreSCP(Stream stream, Logger log)
-                : base(stream, log)
+            public CStoreSCP(INetworkStream stream, Encoding fallbackEncoding, Logger log)
+                : base(stream, fallbackEncoding, log)
             {
             }
 

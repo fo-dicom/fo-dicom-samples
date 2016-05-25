@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 using Dicom.Network;
 
@@ -34,7 +35,7 @@ namespace Dicom.Printing
                                                                                                  .ImplicitVRLittleEndian
                                                                                          };
 
-        private static DicomServer<PrintService> _server;
+        private static IDicomServer _server;
 
         public static Printer Printer { get; private set; }
 
@@ -54,8 +55,8 @@ namespace Dicom.Printing
 
         #region Constructors and Initialization
 
-        public PrintService(System.IO.Stream stream, Dicom.Log.Logger log)
-            : base(stream, log)
+        public PrintService(INetworkStream stream, Encoding fallbackEncoding, Dicom.Log.Logger log)
+            : base(stream, fallbackEncoding, log)
         {
             var pi = stream.GetType()
                 .GetProperty(
@@ -76,7 +77,7 @@ namespace Dicom.Printing
         public static void Start(int port, string aet)
         {
             Printer = new Printer(aet);
-            _server = new DicomServer<PrintService>(port);
+            _server = DicomServer.Create<PrintService>(port);
         }
 
         public static void Stop()
