@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
-//using System.Drawing.Printing;
 using System.Linq;
 using System.Threading;
 
@@ -148,6 +147,16 @@ namespace Dicom.Printing
         {
             get
             {
+                if (!this.Contains(DicomTag.CreationDate))
+                {
+                    return DateTime.MinValue;
+                }
+
+                if (!this.Contains(DicomTag.CreationTime))
+                {
+                    return this.Get<DateTime>(DicomTag.CreationDate);
+                }
+
                 return this.GetDateTime(DicomTag.CreationDate, DicomTag.CreationTime);
             }
             set
