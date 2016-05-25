@@ -40,16 +40,16 @@ namespace ConsoleTest
 
                 NLog.LogManager.Configuration = config;
 
-                //var server = new DicomServer<DicomCEchoProvider>(12345);
-
-
                 var client = new DicomClient();
-                //client.NegotiateAsyncOps();
-                //for (int i = 0; i < 10; i++)
-                //    client.AddRequest(new DicomCEchoRequest());
-                client.AddRequest(new DicomCStoreRequest(@"Z:\test1.dcm"));
-                client.AddRequest(new DicomCStoreRequest(@"Z:\test2.dcm"));
-                client.Send("127.0.0.1", 104, false, "SCU", "ANY-SCP");
+                client.NegotiateAsyncOps();
+                for (int i = 0; i < 10; i++)
+                {
+                    client.AddRequest(new DicomCEchoRequest());
+                }
+
+                client.AddRequest(new DicomCStoreRequest(@"test1.dcm"));
+                client.AddRequest(new DicomCStoreRequest(@"test2.dcm"));
+                client.Send("127.0.0.1", 11112, false, "SCU", "STORESCP");
 
                 foreach (DicomPresentationContext ctr in client.AdditionalPresentationContexts)
                 {
