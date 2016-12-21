@@ -47,12 +47,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Dicom.Core, Version=2.0.1.0, Culture=neutral, PublicKeyToken=3a13f649e28eb09a, processorArchitecture=MSIL">
-      <HintPath>..\packages\fo-dicom.Core.2.0.1\lib\portable-net45+netcore45+wpa81\Dicom.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Dicom.Platform">
-      <HintPath>..\External\Dicom.Platform.Mono\Dicom.Platform.dll</HintPath>
+    <Reference Include="Dicom.Core">
+      <HintPath>..\External\Dicom.Core.Mono\Dicom.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
