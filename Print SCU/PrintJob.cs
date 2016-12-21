@@ -163,7 +163,7 @@ namespace Print_SCU
         public void Print()
         {
             var dicomClient = new DicomClient();
-            dicomClient.NegotiateAsyncOps(4);
+            dicomClient.NegotiateAsyncOps();
 
             dicomClient.AddRequest(
                 new DicomNCreateRequest(FilmSession.SOPClassUID, FilmSession.SOPInstanceUID)
