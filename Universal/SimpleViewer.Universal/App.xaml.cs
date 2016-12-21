@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2012-2016 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
+using Windows.UI.Xaml;
+
 namespace SimpleViewer.Universal
 {
     using System;
@@ -31,10 +33,7 @@ namespace SimpleViewer.Universal
 
         protected override object GetInstance(Type service, string key)
         {
-            var instance = container.GetInstance(service, key);
-            if (instance != null)
-                return instance;
-            throw new Exception("Could not locate any instances.");
+            return container.GetInstance(service, key);
         }
 
         protected override IEnumerable<object> GetAllInstances(Type service)
