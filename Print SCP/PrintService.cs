@@ -391,8 +391,7 @@ namespace Dicom.Printing
             filmBox.Initialize();
 
             var response = new DicomNSetResponse(request, DicomStatus.Success);
-            response.Command.Add(DicomTag.AffectedSOPInstanceUID, filmBox.SOPInstanceUID);
-            response.Command.Add(DicomTag.CommandDataSetType, (ushort)0x0202);
+            response.Command.AddOrUpdate(DicomTag.AffectedSOPInstanceUID, filmBox.SOPInstanceUID);
             response.Dataset = filmBox;
             return response;
         }
@@ -491,7 +490,7 @@ namespace Dicom.Printing
             dataset.Add(sequence);
 
             var response = new DicomNGetResponse(request, DicomStatus.Success);
-            response.Command.Add(DicomTag.AffectedSOPInstanceUID, request.SOPInstanceUID);
+            response.Command.AddOrUpdate(DicomTag.AffectedSOPInstanceUID, request.SOPInstanceUID);
             response.Dataset = dataset;
             return response;
 
@@ -604,7 +603,7 @@ namespace Dicom.Printing
                         var result = new DicomDataset();
                         result.Add(
                             new DicomSequence(
-                                new DicomTag(0x2100, 0x0500),
+                                DicomTag.ReferencedPrintJobSequenceRETIRED,
                                 new DicomDataset(
                                     new DicomUniqueIdentifier(DicomTag.ReferencedSOPClassUID, DicomUID.PrintJobSOPClass)),
                                 new DicomDataset(
@@ -613,7 +612,7 @@ namespace Dicom.Printing
                                         printJob.SOPInstanceUID))));
 
                         var response = new DicomNActionResponse(request, DicomStatus.Success);
-                        response.Command.Add(DicomTag.AffectedSOPInstanceUID, printJob.SOPInstanceUID);
+                        response.Command.AddOrUpdate(DicomTag.AffectedSOPInstanceUID, printJob.SOPInstanceUID);
                         response.Dataset = result;
 
                         return response;

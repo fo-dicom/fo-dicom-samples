@@ -193,14 +193,12 @@ namespace Print_SCU
                                 var req = imageBoxRequests[i];
                                 var imageBox = req.Dataset;
                                 var sopInstanceUid = seq.Items[i].Get<string>(DicomTag.ReferencedSOPInstanceUID);
-                                imageBox.Add(DicomTag.SOPInstanceUID, sopInstanceUid);
-                                req.Command.Add(DicomTag.RequestedSOPInstanceUID, sopInstanceUid);
+                                imageBox.AddOrUpdate(DicomTag.SOPInstanceUID, sopInstanceUid);
+                                req.Command.AddOrUpdate(DicomTag.RequestedSOPInstanceUID, sopInstanceUid);
                             }
                         }
                     };
                 dicomClient.AddRequest(filmBoxRequest);
-
-
 
                 foreach (var image in filmbox.BasicImageBoxes)
                 {
