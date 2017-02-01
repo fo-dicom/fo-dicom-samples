@@ -213,7 +213,6 @@ namespace Dicom.Printing
             this.Logger.Info("Create new film session {0}", _filmSession.SOPInstanceUID.UID);
 
             var response = new DicomNCreateResponse(request, DicomStatus.Success);
-            response.Command.Add(DicomTag.AffectedSOPInstanceUID, _filmSession.SOPInstanceUID);
             return response;
         }
 
@@ -240,7 +239,6 @@ namespace Dicom.Printing
             this.Logger.Info("Created new film box {0}", filmBox.SOPInstanceUID.UID);
 
             var response = new DicomNCreateResponse(request, DicomStatus.Success);
-            response.Command.Add(DicomTag.AffectedSOPInstanceUID, filmBox.SOPInstanceUID);
             response.Dataset = filmBox;
             return response;
         }
@@ -286,9 +284,8 @@ namespace Dicom.Printing
             {
                 status = DicomStatus.NoSuchObjectInstance;
             }
-            var response = new DicomNDeleteResponse(request, status);
 
-            response.Command.Add(DicomTag.AffectedSOPInstanceUID, request.SOPInstanceUID);
+            var response = new DicomNDeleteResponse(request, status);
             return response;
         }
 
