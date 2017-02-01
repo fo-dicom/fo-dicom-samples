@@ -122,10 +122,18 @@ namespace SimpleViewer.Universal.ViewModels
                 this.images = imageFiles.SelectMany(
                     imageFile =>
                         {
-                            var dicomImage = new DicomImage(imageFile.Dataset);
-                            return
-                                Enumerable.Range(0, dicomImage.NumberOfFrames)
-                                    .Select(frame => dicomImage.RenderImage(frame).As<ImageSource>());
+                            try
+                            {
+                                var dicomImage = new DicomImage(imageFile.Dataset);
+                                var frames =
+                                    Enumerable.Range(0, dicomImage.NumberOfFrames)
+                                        .Select(frame => dicomImage.RenderImage(frame).As<ImageSource>());
+                                return frames;
+                            }
+                            catch
+                            {
+                                return new ImageSource[0];
+                            }
                         }).ToList();
 
                 this.NumberOfImages = this.images.Count;
