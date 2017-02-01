@@ -42,8 +42,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dicom.Core, Version=2.9.9.0, Culture=neutral, PublicKeyToken=3a13f649e28eb09a, processorArchitecture=MSIL">
-      <HintPath>..\packages\fo-dicom.Desktop.3.0.0-beta4\lib\net452\Dicom.Core.dll</HintPath>
+    <Reference Include="Dicom.Core">
+      <HintPath>..\packages\fo-dicom.Desktop.3.0.0-rc1\lib\net452\Dicom.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -73,9 +73,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\packages\fo-dicom.Desktop.3.0.0-beta4\build\net452\fo-dicom.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\fo-dicom.Desktop.3.0.0-beta4\build\net452\fo-dicom.Desktop.targets'))" />
+    <Error Condition="!Exists('..\packages\fo-dicom.Desktop.3.0.0-rc1\build\net452\fo-dicom.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\fo-dicom.Desktop.3.0.0-rc1\build\net452\fo-dicom.Desktop.targets'))" />
   </Target>
-  <Import Project="..\packages\fo-dicom.Desktop.3.0.0-beta4\build\net452\fo-dicom.Desktop.targets" Condition="Exists('..\packages\fo-dicom.Desktop.3.0.0-beta4\build\net452\fo-dicom.Desktop.targets')" />
+  <Import Project="..\packages\fo-dicom.Desktop.3.0.0-rc1\build\net452\fo-dicom.Desktop.targets" Condition="Exists('..\packages\fo-dicom.Desktop.3.0.0-rc1\build\net452\fo-dicom.Desktop.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
