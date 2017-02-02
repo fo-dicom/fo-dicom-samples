@@ -1,7 +1,7 @@
 ﻿{
   "dependencies": {
     "Caliburn.Micro": "3.0.3",
-    "fo-dicom.Universal": "3.0.0-rc1",
+    "fo-dicom.Universal": "3.0.0-rc2",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2"
   },
   "frameworks": {
