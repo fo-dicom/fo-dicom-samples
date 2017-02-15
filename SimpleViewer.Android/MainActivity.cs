@@ -24,7 +24,7 @@ namespace SimpleViewer.Android
             {
                 // Read and render DICOM image
                 Bitmap bitmap;
-                using (var stream = Assets.Open("CT-MONO2-8-abdo"))
+                using (var stream = Assets.Open("jpeg-baseline.dcm"))
                 using (var inner = new MemoryStream())
                 {
                     stream.CopyTo(inner);
