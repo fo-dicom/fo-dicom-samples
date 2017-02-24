@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2016 fo-dicom contributors.
+// Copyright (c) 2012-2017 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 #if WIN32
@@ -12,11 +12,11 @@ using System.Resources;
 
 [assembly: AssemblyCompanyAttribute("fo-dicom")]
 [assembly: AssemblyProductAttribute("fo-dicom-samples")]
-[assembly: AssemblyCopyrightAttribute("Copyright © fo-dicom contributors 2012-2016")]
+[assembly: AssemblyCopyrightAttribute("Copyright © fo-dicom contributors 2012-2017")]
 [assembly: AssemblyTrademarkAttribute("")]
 [assembly: AssemblyCultureAttribute("")]
-[assembly: NeutralResourcesLanguage("en")]
+[assembly: NeutralResourcesLanguageAttribute("en")]
 
 [assembly: AssemblyVersionAttribute("1.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.1")]
+[assembly: AssemblyFileVersionAttribute("1.0.0.2")]
 [assembly: AssemblyInformationalVersionAttribute("1.0.0")]
