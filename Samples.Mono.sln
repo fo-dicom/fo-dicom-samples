@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "C-Store SCP.Mono", "C-Store SCP\C-Store SCP.Mono.csproj", "{D9AF008C-EE25-49B3-96F6-E81B8A59D017}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "C-Store SCP.Mono", "Mono\C-Store SCP.Mono\C-Store SCP.Mono.csproj", "{D9AF008C-EE25-49B3-96F6-E81B8A59D017}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
