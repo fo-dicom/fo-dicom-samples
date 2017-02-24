@@ -1,21 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wado", "Wado\Wado.csproj", "{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "Desktop\ConsoleTest\ConsoleTest.csproj", "{16FD143D-6E25-4CD9-AEC0-B096644B0045}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{16FD143D-6E25-4CD9-AEC0-B096644B0045}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "C-Store SCP", "Desktop\C-Store SCP\C-Store SCP.csproj", "{D9AF008C-EE25-49B3-96F6-E81B8A59D017}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "C-Store SCP", "C-Store SCP\C-Store SCP.csproj", "{D9AF008C-EE25-49B3-96F6-E81B8A59D017}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DICOM Media", "Desktop\DICOM Media\DICOM Media.csproj", "{00A56C9C-8237-4CB8-ACC9-437C8D366EFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DICOM Media", "DICOM Media\DICOM Media.csproj", "{00A56C9C-8237-4CB8-ACC9-437C8D366EFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging Serilog", "Desktop\Logging Serilog\Logging Serilog.csproj", "{3AAFAAC6-3224-4754-884E-1CBEACEE2D59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging Serilog", "Logging Serilog\Logging Serilog.csproj", "{3AAFAAC6-3224-4754-884E-1CBEACEE2D59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Print SCP", "Desktop\Print SCP\Print SCP.csproj", "{7D7F92D4-0992-42A4-8290-4770BCA67F49}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Print SCP", "Print SCP\Print SCP.csproj", "{7D7F92D4-0992-42A4-8290-4770BCA67F49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Print SCU", "Desktop\Print SCU\Print SCU.csproj", "{CC7C6F7D-CBCE-44D3-B910-A9AB1AB5A36C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Print SCU", "Print SCU\Print SCU.csproj", "{CC7C6F7D-CBCE-44D3-B910-A9AB1AB5A36C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wado", "Desktop\Wado\Wado.csproj", "{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{16FD143D-6E25-4CD9-AEC0-B096644B0045}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{16FD143D-6E25-4CD9-AEC0-B096644B0045}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16FD143D-6E25-4CD9-AEC0-B096644B0045}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,6 +47,10 @@ Global
 		{CC7C6F7D-CBCE-44D3-B910-A9AB1AB5A36C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC7C6F7D-CBCE-44D3-B910-A9AB1AB5A36C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC7C6F7D-CBCE-44D3-B910-A9AB1AB5A36C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
