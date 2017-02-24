@@ -327,10 +327,10 @@ namespace Dicom.Printing
 
                 OnStatusUpdate("Printing Done");
             }
-            catch
+            catch (Exception e)
             {
                 Status = PrintJobStatus.Failure;
-                OnStatusUpdate("Printing failed");
+                OnStatusUpdate($"Printing failed, exception: {e}");
             }
             finally
             {

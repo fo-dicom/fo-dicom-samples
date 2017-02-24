@@ -224,7 +224,7 @@ namespace Wado.Controllers
                 DicomFile dicomFileToStream;
                 if (!transferSyntaxIsTheSameAsSourceFile)
                 {
-                    dicomFileToStream = dicomFile.ChangeTransferSyntax(requestedTransferSyntax);
+                    dicomFileToStream = dicomFile.Clone(requestedTransferSyntax);
                 }
                 else
                 {
