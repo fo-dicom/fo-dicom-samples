@@ -91,7 +91,6 @@
     <Compile Include="AppDelegate.cs" />
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewController.designer.cs">
@@ -102,18 +101,6 @@
     <InterfaceDefinition Include="Resources\LaunchScreen.xib" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="BitMiracle.LibJpeg.NetCore, Version=1.5.1.0, Culture=neutral, PublicKeyToken=d69f732e552243f5, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Portable.LibJpeg.NET.1.5.1.1\lib\netstandard1.0\BitMiracle.LibJpeg.NetCore.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="CSJ2K, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0ca7be2ec378a773, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\CSJ2K.2.0.0.1\lib\Xamarin.iOS10\CSJ2K.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Dicom.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=3a13f649e28eb09a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\fo-dicom.iOS.3.0.0\lib\Xamarin.iOS10\Dicom.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -121,20 +108,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Entitlements.plist" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets\" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="..\..\Android\SimpleViewer.Android\Assets\CT-MONO2-8-abdo">
-      <Link>Assets\CT-MONO2-8-abdo</Link>
-    </BundleResource>
-    <BundleResource Include="..\..\Android\SimpleViewer.Android\Assets\jpeg-baseline.dcm">
-      <Link>Assets\jpeg-baseline.dcm</Link>
-    </BundleResource>
-    <BundleResource Include="..\..\Android\SimpleViewer.Android\Assets\US1_J2KI">
-      <Link>Assets\US1_J2KI</Link>
-    </BundleResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>
