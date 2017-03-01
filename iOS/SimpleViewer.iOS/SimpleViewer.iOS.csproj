@@ -122,5 +122,19 @@
   <ItemGroup>
     <Content Include="Entitlements.plist" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="..\..\Android\SimpleViewer.Android\Assets\CT-MONO2-8-abdo">
+      <Link>Assets\CT-MONO2-8-abdo</Link>
+    </BundleResource>
+    <BundleResource Include="..\..\Android\SimpleViewer.Android\Assets\jpeg-baseline.dcm">
+      <Link>Assets\jpeg-baseline.dcm</Link>
+    </BundleResource>
+    <BundleResource Include="..\..\Android\SimpleViewer.Android\Assets\US1_J2KI">
+      <Link>Assets\US1_J2KI</Link>
+    </BundleResource>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>
