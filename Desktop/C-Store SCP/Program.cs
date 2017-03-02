@@ -20,8 +20,12 @@ namespace Dicom.CStoreSCP
             var dict = DicomDictionary.Default;
 
 
-            // start DICOM server on port 11112
-            var server = DicomServer.Create<CStoreSCP>(11112);
+            // start DICOM server on port from command line argument or 11112
+            int tmp;
+            var port = args != null && args.Length > 0 && int.TryParse(args[0], out tmp) ? tmp : 11112;
+            Console.WriteLine($"Starting C-Store SCP server on port {port}");
+
+            var server = DicomServer.Create<CStoreSCP>(port);
 
 
             // end process
