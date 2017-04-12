@@ -211,7 +211,10 @@ namespace Dicom.Printing
 
 
             this.Logger.Info("Create new film session {0}", _filmSession.SOPInstanceUID.UID);
-
+            if (request.SOPInstanceUID == null || request.SOPInstanceUID.UID == string.Empty)
+            {
+                request.Command.AddOrUpdate(DicomTag.AffectedSOPInstanceUID, _filmSession.SOPInstanceUID);
+            }
             var response = new DicomNCreateResponse(request, DicomStatus.Success);
             return response;
         }
@@ -237,7 +240,10 @@ namespace Dicom.Printing
             }
 
             this.Logger.Info("Created new film box {0}", filmBox.SOPInstanceUID.UID);
-
+            if (request.SOPInstanceUID == null || request.SOPInstanceUID.UID == string.Empty)
+            {
+                request.Command.AddOrUpdate(DicomTag.AffectedSOPInstanceUID, filmBox.SOPInstanceUID.UID);
+            }
             var response = new DicomNCreateResponse(request, DicomStatus.Success);
             response.Dataset = filmBox;
             return response;
