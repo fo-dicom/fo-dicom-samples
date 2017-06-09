@@ -2,24 +2,56 @@
 using Dicom.Network;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace QueryRetrieve_SCU
 {
     class Program
     {
+
+        private static string StoragePath = @".\DICOM";
+
+
         static void Main(string[] args)
         {
             var client = new DicomClient();
             client.NegotiateAsyncOps();
 
             // Find a list of Studies
-            var request = CreateStudyRequestByPatientName("Test*^*");
+            var request = CreateStudyRequestByPatientName("Tester^P*");
 
-            request.OnResponseReceived += HandleResponse;
+            var studyUids = new List<string>();
+            request.OnResponseReceived += (req, response) =>
+            {
+                DebugStudyResponse(response);
+                studyUids.Add(response.Dataset?.Get<string>(DicomTag.StudyInstanceUID));
+            };
             client.AddRequest(request);
+            client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
+
+            // from one of the studies load all series
+            var studyUID = studyUids[3];
+            request = CreateSeriesRequestByStudyUID(studyUID);
+            var serieUids = new List<string>();
+            request.OnResponseReceived += (req, response) =>
+            {
+                DebugSerieResponse(response);
+                serieUids.Add(response.Dataset?.Get<string>(DicomTag.SeriesInstanceUID));
+            };
+            client.AddRequest(request);
+            client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
+
+            // now get all the images of a serie
+            var cGetRequest = CreateCGetBySeriesUID(studyUID, serieUids.First());
+            client.OnCStoreRequest += (DicomCStoreRequest req) =>
+            {
+                SaveImage(req.Dataset);
+                return new DicomCStoreResponse(req, DicomStatus.Success);
+            };
+            client.AdditionalPresentationContexts.Add(DicomPresentationContext.GetScpRolePresentationContext(DicomUID.SecondaryCaptureImageStorage, DicomTransferSyntax.ImplicitVRBigEndian, DicomTransferSyntax.ExplicitVRBigEndian, DicomTransferSyntax.ExplicitVRLittleEndian));
+            client.AddRequest(cGetRequest);
             client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
 
             Console.ReadLine();
@@ -64,7 +96,7 @@ namespace QueryRetrieve_SCU
             request.Dataset.AddOrUpdate(DicomTag.StudyDate, "");
             request.Dataset.AddOrUpdate(DicomTag.StudyTime, "");
             request.Dataset.AddOrUpdate(DicomTag.AccessionNumber, "");
-            request.Dataset.AddOrUpdate(DicomTag.ModalitiesInStudy, "");
+            request.Dataset.AddOrUpdate(DicomTag.Modality, "");
             request.Dataset.AddOrUpdate(DicomTag.StudyDescription, "");
             request.Dataset.AddOrUpdate(DicomTag.InstitutionName, "");
             request.Dataset.AddOrUpdate(DicomTag.ReferringPhysicianName, "");
@@ -88,7 +120,16 @@ namespace QueryRetrieve_SCU
             return request;
         }
 
-        public static void HandleResponse(DicomCFindRequest request, DicomCFindResponse response)
+
+        public static DicomCGetRequest CreateCGetBySeriesUID(string studyUID, string seriesUID)
+        {
+            var request = new DicomCGetRequest(studyUID, seriesUID);
+            // no more dicomtags have to be set
+            return request;
+        }
+
+
+        public static void DebugStudyResponse(DicomCFindResponse response)
         {
             if (response.Status == DicomStatus.Pending)
             {
@@ -100,6 +141,40 @@ namespace QueryRetrieve_SCU
                 Console.WriteLine(response.Status.ToString());
             }
         }
+
+        public static void DebugSerieResponse(DicomCFindResponse response)
+        {
+            try
+            {
+                if (response.Status == DicomStatus.Pending)
+                {
+                    // print the results
+                    Console.WriteLine($"Serie {response.Dataset.Get<String>(DicomTag.SeriesDescription)}, {response.Dataset.Get<String>(DicomTag.Modality)}, {response.Dataset.Get<int>(DicomTag.NumberOfSeriesRelatedInstances)} instances");
+                }
+                if (response.Status == DicomStatus.Success)
+                {
+                    Console.WriteLine(response.Status.ToString());
+                }
+            } catch(Exception ex)
+            { }
+        }
+
+
+        public static void SaveImage(DicomDataset dataset)
+        {
+            var studyUid = dataset.Get<string>(DicomTag.StudyInstanceUID);
+            var instUid = dataset.Get<string>(DicomTag.SOPInstanceUID);
+
+            var path = Path.GetFullPath(Program.StoragePath);
+            path = Path.Combine(path, studyUid);
+
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+            path = Path.Combine(path, instUid) + ".dcm";
+
+            new DicomFile(dataset).Save(path);
+        }
+
 
     }
 }
