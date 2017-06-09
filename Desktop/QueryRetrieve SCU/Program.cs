@@ -20,6 +20,7 @@ namespace QueryRetrieve_SCU
             client.NegotiateAsyncOps();
 
             // Find a list of Studies
+
             var request = CreateStudyRequestByPatientName("Tester^P*");
 
             var studyUids = new List<string>();
@@ -31,7 +32,8 @@ namespace QueryRetrieve_SCU
             client.AddRequest(request);
             client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
 
-            // from one of the studies load all series
+            // find all series from a study that previous was returned
+
             var studyUID = studyUids[3];
             request = CreateSeriesRequestByStudyUID(studyUID);
             var serieUids = new List<string>();
@@ -43,19 +45,33 @@ namespace QueryRetrieve_SCU
             client.AddRequest(request);
             client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
 
-            // now get all the images of a serie
+            // now get all the images of a serie with cGet in the same association
+
             var cGetRequest = CreateCGetBySeriesUID(studyUID, serieUids.First());
             client.OnCStoreRequest += (DicomCStoreRequest req) =>
             {
                 SaveImage(req.Dataset);
                 return new DicomCStoreResponse(req, DicomStatus.Success);
             };
-            client.AdditionalPresentationContexts.Add(DicomPresentationContext.GetScpRolePresentationContext(DicomUID.SecondaryCaptureImageStorage, DicomTransferSyntax.ImplicitVRBigEndian, DicomTransferSyntax.ExplicitVRBigEndian, DicomTransferSyntax.ExplicitVRLittleEndian));
+            // the client has to accept storage of the images. We know that the requested images are of SOP class Secondary capture, 
+            // so we add the Secondary capture to the additional presentation context
+            // a more general approach would be to mace a cfind-request on image level and to read a list of distinct SOP classes of all
+            // the images. these SOP classes shall be added here.
+            client.AdditionalPresentationContexts.Add(DicomPresentationContext.GetScpRolePresentationContext(
+                DicomUID.SecondaryCaptureImageStorage, DicomTransferSyntax.ImplicitVRBigEndian, 
+                DicomTransferSyntax.ExplicitVRBigEndian, DicomTransferSyntax.ExplicitVRLittleEndian));
             client.AddRequest(cGetRequest);
+            client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
+
+            // if the images shall be sent to an existing storescp and this storescp is configured on the QR SCP then a CMove could be performed:
+
+            var cMoveRequest = CreateCMoveBySeriesUID("FODICOMSCP", studyUID, serieUids.First());
+            client.AddRequest(cMoveRequest);
             client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
 
             Console.ReadLine();
         }
+
 
         public static DicomCFindRequest CreateStudyRequestByPatientName(string patientName)
         {
@@ -129,6 +145,14 @@ namespace QueryRetrieve_SCU
         }
 
 
+        public static DicomCMoveRequest CreateCMoveBySeriesUID(string destination, string studyUID, string seriesUID)
+        {
+            var request = new DicomCMoveRequest(destination, studyUID, seriesUID);
+            // no more dicomtags have to be set
+            return request;
+        }
+
+
         public static void DebugStudyResponse(DicomCFindResponse response)
         {
             if (response.Status == DicomStatus.Pending)
@@ -141,6 +165,7 @@ namespace QueryRetrieve_SCU
                 Console.WriteLine(response.Status.ToString());
             }
         }
+
 
         public static void DebugSerieResponse(DicomCFindResponse response)
         {
