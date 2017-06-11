@@ -1,4 +1,7 @@
-﻿using Dicom;
+﻿// Copyright (c) 2012-2017 fo-dicom contributors.
+// Licensed under the Microsoft Public License (MS-PL).
+
+using Dicom;
 using Dicom.Network;
 using System;
 using System.Collections.Generic;
@@ -12,6 +15,12 @@ namespace QueryRetrieve_SCU
     {
 
         private static string StoragePath = @".\DICOM";
+        // values of the Query Retrieve Server to test with.
+        private static string QRServerHost = "www.dicomserver.co.uk";
+        private static int QRServerPort = 104;
+        private static string QRServerAET = "STORESCP";
+        private static string AET = "FODICOMSCU";
+
 
 
         static void Main(string[] args)
@@ -30,7 +39,7 @@ namespace QueryRetrieve_SCU
                 studyUids.Add(response.Dataset?.Get<string>(DicomTag.StudyInstanceUID));
             };
             client.AddRequest(request);
-            client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
+            client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
 
             // find all series from a study that previous was returned
 
@@ -43,7 +52,7 @@ namespace QueryRetrieve_SCU
                 serieUids.Add(response.Dataset?.Get<string>(DicomTag.SeriesInstanceUID));
             };
             client.AddRequest(request);
-            client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
+            client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
 
             // now get all the images of a serie with cGet in the same association
 
@@ -58,17 +67,41 @@ namespace QueryRetrieve_SCU
             // a more general approach would be to mace a cfind-request on image level and to read a list of distinct SOP classes of all
             // the images. these SOP classes shall be added here.
             client.AdditionalPresentationContexts.Add(DicomPresentationContext.GetScpRolePresentationContext(
-                DicomUID.SecondaryCaptureImageStorage, DicomTransferSyntax.ImplicitVRBigEndian, 
+                DicomUID.SecondaryCaptureImageStorage, DicomTransferSyntax.ImplicitVRBigEndian,
                 DicomTransferSyntax.ExplicitVRBigEndian, DicomTransferSyntax.ExplicitVRLittleEndian));
             client.AddRequest(cGetRequest);
-            client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
+            client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
 
             // if the images shall be sent to an existing storescp and this storescp is configured on the QR SCP then a CMove could be performed:
 
+            // here we want to see how a error case looks like - because the test QR Server does not know the node FODICOMSCP
             var cMoveRequest = CreateCMoveBySeriesUID("FODICOMSCP", studyUID, serieUids.First());
+            bool? moveSuccessfully = null;
+            cMoveRequest.OnResponseReceived += (DicomCMoveRequest requ, DicomCMoveResponse response) =>
+            {
+                if (response.Status.State == DicomState.Pending)
+                {
+                    Console.WriteLine("Sending is in progress. please wait");
+                }
+                else if (response.Status.State == DicomState.Success)
+                {
+                    Console.WriteLine("Sending successfully finished");
+                    moveSuccessfully = true;
+                }
+                else if (response.Status.State == DicomState.Failure)
+                {
+                    Console.WriteLine("Error sending datasets: " + response.Status.Description);
+                    moveSuccessfully = false;
+                }
+                Console.WriteLine(response.Status);
+            };
             client.AddRequest(cMoveRequest);
-            client.Send("www.dicomserver.co.uk", 104, false, "FODICOMSCU", "STORESCP");
+            client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
 
+            if (moveSuccessfully.GetValueOrDefault(false))
+            {
+                // images sent successfully from QR Server to the store scp
+            }
             Console.ReadLine();
         }
 
@@ -158,7 +191,7 @@ namespace QueryRetrieve_SCU
             if (response.Status == DicomStatus.Pending)
             {
                 // print the results
-                Console.WriteLine($"Patient {response.Dataset.Get<String>(DicomTag.PatientName)}, {response.Dataset.Get<String>(DicomTag.ModalitiesInStudy,-1)}-Study from {response.Dataset.Get<DateTime>(DicomTag.StudyDate)} with UID {response.Dataset.Get<String>(DicomTag.StudyInstanceUID)} ");
+                Console.WriteLine($"Patient {response.Dataset.Get<String>(DicomTag.PatientName)}, {response.Dataset.Get<String>(DicomTag.ModalitiesInStudy, -1)}-Study from {response.Dataset.Get<DateTime>(DicomTag.StudyDate)} with UID {response.Dataset.Get<String>(DicomTag.StudyInstanceUID)} ");
             }
             if (response.Status == DicomStatus.Success)
             {
@@ -180,7 +213,8 @@ namespace QueryRetrieve_SCU
                 {
                     Console.WriteLine(response.Status.ToString());
                 }
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             { }
         }
 
