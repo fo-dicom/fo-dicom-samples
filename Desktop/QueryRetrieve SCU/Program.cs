@@ -108,25 +108,24 @@ namespace QueryRetrieve_SCU
 
         public static DicomCFindRequest CreateStudyRequestByPatientName(string patientName)
         {
+            // there is a built in function to create a Study-level CFind request very easily: 
+            // return DicomCFindRequest.CreateStudyQuery(patientName: patientName);
+
+            // but consider to create your own request that contains exactly those DicomTags that
+            // you realy need pro process your data and not to cause unneccessary traffic and IO load:
+
             var request = new DicomCFindRequest(DicomQueryRetrieveLevel.Study);
 
+            // always add the encoding
             request.Dataset.AddOrUpdate(new DicomTag(0x8, 0x5), "ISO_IR 100");
 
-            // add the dicom tags with empty values that should be included in the result
-            request.Dataset.AddOrUpdate(DicomTag.StudyDate, "");
-            request.Dataset.AddOrUpdate(DicomTag.StudyTime, "");
-            request.Dataset.AddOrUpdate(DicomTag.AccessionNumber, "");
-            request.Dataset.AddOrUpdate(DicomTag.ModalitiesInStudy, "");
-            request.Dataset.AddOrUpdate(DicomTag.StudyDescription, "");
-            request.Dataset.AddOrUpdate(DicomTag.InstitutionName, "");
-            request.Dataset.AddOrUpdate(DicomTag.ReferringPhysicianName, "");
-            request.Dataset.AddOrUpdate(DicomTag.ProtocolName, "");
+            // add the dicom tags with empty values that should be included in the result of the QR Server
             request.Dataset.AddOrUpdate(DicomTag.PatientName, "");
             request.Dataset.AddOrUpdate(DicomTag.PatientID, "");
-            request.Dataset.AddOrUpdate(DicomTag.PatientBirthDate, "");
-            request.Dataset.AddOrUpdate(DicomTag.PatientSex, "");
+            request.Dataset.AddOrUpdate(DicomTag.ModalitiesInStudy, "");
+            request.Dataset.AddOrUpdate(DicomTag.StudyDate, "");
             request.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, "");
-            request.Dataset.AddOrUpdate(DicomTag.StudyID, "");
+            request.Dataset.AddOrUpdate(DicomTag.StudyDescription, "");
 
             // add the dicom tags that contain the filter criterias
             request.Dataset.AddOrUpdate(DicomTag.PatientName, patientName);
@@ -137,31 +136,20 @@ namespace QueryRetrieve_SCU
 
         public static DicomCFindRequest CreateSeriesRequestByStudyUID(string studyInstanceUID)
         {
+            // there is a built in function to create a Study-level CFind request very easily: 
+            // return DicomCFindRequest.CreateSeriesQuery(studyInstanceUID);
+
+            // but consider to create your own request that contains exactly those DicomTags that
+            // you realy need pro process your data and not to cause unneccessary traffic and IO load:
             var request = new DicomCFindRequest(DicomQueryRetrieveLevel.Series);
 
             request.Dataset.AddOrUpdate(new DicomTag(0x8, 0x5), "ISO_IR 100");
 
             // add the dicom tags with empty values that should be included in the result
-            request.Dataset.AddOrUpdate(DicomTag.StudyDate, "");
-            request.Dataset.AddOrUpdate(DicomTag.StudyTime, "");
-            request.Dataset.AddOrUpdate(DicomTag.AccessionNumber, "");
-            request.Dataset.AddOrUpdate(DicomTag.Modality, "");
-            request.Dataset.AddOrUpdate(DicomTag.StudyDescription, "");
-            request.Dataset.AddOrUpdate(DicomTag.InstitutionName, "");
-            request.Dataset.AddOrUpdate(DicomTag.ReferringPhysicianName, "");
-            request.Dataset.AddOrUpdate(DicomTag.ProtocolName, "");
-            request.Dataset.AddOrUpdate(DicomTag.PatientName, "");
-            request.Dataset.AddOrUpdate(DicomTag.PatientID, "");
-            request.Dataset.AddOrUpdate(DicomTag.PatientBirthDate, "");
-            request.Dataset.AddOrUpdate(DicomTag.PatientSex, "");
-            request.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, "");
-            request.Dataset.AddOrUpdate(DicomTag.StudyID, "");
             request.Dataset.AddOrUpdate(DicomTag.SeriesInstanceUID, "");
             request.Dataset.AddOrUpdate(DicomTag.SeriesDescription, "");
-            request.Dataset.AddOrUpdate(DicomTag.SeriesDate, "");
-            request.Dataset.AddOrUpdate(DicomTag.SeriesTime, "");
+            request.Dataset.AddOrUpdate(DicomTag.Modality, "");
             request.Dataset.AddOrUpdate(DicomTag.NumberOfSeriesRelatedInstances, "");
-            request.Dataset.AddOrUpdate(DicomTag.SeriesNumber, "");
 
             // add the dicom tags that contain the filter criterias
             request.Dataset.AddOrUpdate(DicomTag.StudyInstanceUID, studyInstanceUID);
