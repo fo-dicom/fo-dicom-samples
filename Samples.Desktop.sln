@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "Desktop\ConsoleTest\ConsoleTest.csproj", "{16FD143D-6E25-4CD9-AEC0-B096644B0045}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wado", "Desktop\Wado\Wado.csproj", "{9D8C9830-AD5F-478D-8CDC-E04C4A3773F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DICOM Compare", "Desktop\DICOM Compare\DICOM Compare.csproj", "{1C0C476C-507D-453F-90C2-C1C5E4B35BEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryRetrieve SCU", "Desktop\QueryRetrieve SCU\QueryRetrieve SCU.csproj", "{1C63F8A8-393E-4911-83D0-A01D78A47B45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{1C0C476C-507D-453F-90C2-C1C5E4B35BEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C0C476C-507D-453F-90C2-C1C5E4B35BEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C0C476C-507D-453F-90C2-C1C5E4B35BEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C63F8A8-393E-4911-83D0-A01D78A47B45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C63F8A8-393E-4911-83D0-A01D78A47B45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C63F8A8-393E-4911-83D0-A01D78A47B45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C63F8A8-393E-4911-83D0-A01D78A47B45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
