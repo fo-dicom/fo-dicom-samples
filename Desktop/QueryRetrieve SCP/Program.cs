@@ -1,9 +1,5 @@
 ﻿using Dicom.Log;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace QueryRetrieve_SCP
 {
@@ -19,7 +15,7 @@ namespace QueryRetrieve_SCP
 
             Console.WriteLine($"Starting QR SCP server with AET: QRSCP on port {port}");
 
-            QRService.Start(port, "QRSCP");
+            QRServer.Start(port, "QRSCP");
 
             Console.WriteLine("Press any key to stop the service");
 
@@ -27,7 +23,7 @@ namespace QueryRetrieve_SCP
 
             Console.WriteLine("Stopping QR service");
 
-            QRService.Stop();
+            QRServer.Stop();
 
         }
     }

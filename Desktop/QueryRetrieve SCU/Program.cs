@@ -16,9 +16,9 @@ namespace QueryRetrieve_SCU
 
         private static string StoragePath = @".\DICOM";
         // values of the Query Retrieve Server to test with.
-        private static string QRServerHost = "www.dicomserver.co.uk";
-        private static int QRServerPort = 104;
-        private static string QRServerAET = "STORESCP";
+        private static string QRServerHost = "localhost"; // "www.dicomserver.co.uk";
+        private static int QRServerPort = 8001; // 104;
+        private static string QRServerAET = "QRSCP"; // "STORESCP";
         private static string AET = "FODICOMSCU";
 
 
@@ -43,7 +43,7 @@ namespace QueryRetrieve_SCU
 
             // find all series from a study that previous was returned
 
-            var studyUID = studyUids[3];
+            var studyUID = studyUids[0];
             request = CreateSeriesRequestByStudyUID(studyUID);
             var serieUids = new List<string>();
             request.OnResponseReceived += (req, response) =>
@@ -56,9 +56,11 @@ namespace QueryRetrieve_SCU
 
             // now get all the images of a serie with cGet in the same association
 
+            client = new DicomClient();
             var cGetRequest = CreateCGetBySeriesUID(studyUID, serieUids.First());
             client.OnCStoreRequest += (DicomCStoreRequest req) =>
             {
+                Console.WriteLine(DateTime.Now.ToString() + " recived");
                 SaveImage(req.Dataset);
                 return new DicomCStoreResponse(req, DicomStatus.Success);
             };
@@ -66,22 +68,26 @@ namespace QueryRetrieve_SCU
             // so we add the Secondary capture to the additional presentation context
             // a more general approach would be to mace a cfind-request on image level and to read a list of distinct SOP classes of all
             // the images. these SOP classes shall be added here.
-            client.AdditionalPresentationContexts.Add(DicomPresentationContext.GetScpRolePresentationContext(
-                DicomUID.SecondaryCaptureImageStorage, DicomTransferSyntax.ImplicitVRBigEndian,
-                DicomTransferSyntax.ExplicitVRBigEndian, DicomTransferSyntax.ExplicitVRLittleEndian));
+            var pcs = DicomPresentationContext.GetScpRolePresentationContextsFromStorageUids(
+                DicomStorageCategory.Image,
+                DicomTransferSyntax.ExplicitVRLittleEndian,
+                DicomTransferSyntax.ImplicitVRLittleEndian,
+                DicomTransferSyntax.ImplicitVRBigEndian);
+            client.AdditionalPresentationContexts.AddRange(pcs);
             client.AddRequest(cGetRequest);
             client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
 
             // if the images shall be sent to an existing storescp and this storescp is configured on the QR SCP then a CMove could be performed:
 
             // here we want to see how a error case looks like - because the test QR Server does not know the node FODICOMSCP
-            var cMoveRequest = CreateCMoveBySeriesUID("FODICOMSCP", studyUID, serieUids.First());
+            client = new DicomClient();
+            var cMoveRequest = CreateCMoveByStudyUID("STORESCP", studyUID);
             bool? moveSuccessfully = null;
             cMoveRequest.OnResponseReceived += (DicomCMoveRequest requ, DicomCMoveResponse response) =>
             {
                 if (response.Status.State == DicomState.Pending)
                 {
-                    Console.WriteLine("Sending is in progress. please wait");
+                    Console.WriteLine("Sending is in progress. please wait: " + response.Remaining.ToString());
                 }
                 else if (response.Status.State == DicomState.Success)
                 {
@@ -100,6 +106,7 @@ namespace QueryRetrieve_SCU
 
             if (moveSuccessfully.GetValueOrDefault(false))
             {
+                Console.WriteLine("images sent successfully");
                 // images sent successfully from QR Server to the store scp
             }
             Console.ReadLine();
@@ -174,12 +181,20 @@ namespace QueryRetrieve_SCU
         }
 
 
+        public static DicomCMoveRequest CreateCMoveByStudyUID(string destination, string studyUID)
+        {
+            var request = new DicomCMoveRequest(destination, studyUID);
+            // no more dicomtags have to be set
+            return request;
+        }
+
+
         public static void DebugStudyResponse(DicomCFindResponse response)
         {
             if (response.Status == DicomStatus.Pending)
             {
                 // print the results
-                Console.WriteLine($"Patient {response.Dataset.Get<String>(DicomTag.PatientName)}, {response.Dataset.Get<String>(DicomTag.ModalitiesInStudy, -1)}-Study from {response.Dataset.Get<DateTime>(DicomTag.StudyDate)} with UID {response.Dataset.Get<String>(DicomTag.StudyInstanceUID)} ");
+                Console.WriteLine($"Patient {response.Dataset.Get(DicomTag.PatientName, string.Empty)}, {response.Dataset.Get(DicomTag.ModalitiesInStudy, -1, string.Empty)}-Study from {response.Dataset.Get(DicomTag.StudyDate, new DateTime())} with UID {response.Dataset.Get(DicomTag.StudyInstanceUID, string.Empty)} ");
             }
             if (response.Status == DicomStatus.Success)
             {
@@ -202,7 +217,7 @@ namespace QueryRetrieve_SCU
                     Console.WriteLine(response.Status.ToString());
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             { }
         }
 
