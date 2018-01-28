@@ -1,4 +1,7 @@
-﻿using Dicom.Network;
+﻿// Copyright (c) 2012-2018 fo-dicom contributors.
+// Licensed under the Microsoft Public License (MS-PL).
+
+using Dicom.Network;
 using QueryRetrieve_SCP.Model;
 
 namespace QueryRetrieve_SCP
