@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DICOM Compare", "Desktop\DI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryRetrieve SCU", "Desktop\QueryRetrieve SCU\QueryRetrieve SCU.csproj", "{1C63F8A8-393E-4911-83D0-A01D78A47B45}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryRetrieve SCP", "Desktop\QueryRetrieve SCP\QueryRetrieve SCP.csproj", "{8E430BBE-C5D2-40FB-9F26-7B2BCB2B3F2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worklist SCP", "Desktop\Worklist SCP\Worklist SCP.csproj", "{78E5DF7A-8829-450B-800C-B5079BC9106D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +70,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DAD5E5C7-4DEA-4B73-B1B6-5F79799BEB7A}
 	EndGlobalSection
 EndGlobal
