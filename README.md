@@ -10,12 +10,16 @@ Sample contributions from the community are more than welcome. Make a pull reque
 #### .NET
 * ConsoleTest, legacy test project
 * C-Store SCP, simple implementation of a C-STORE Service Class Provider
+* C-Store SCU, simple implementation of a C-STORE Service Class User
 * DICOM Compare, compare two DICOM files for differences
 * DICOM Media, simple DICOMDIR reader/writer
 * Logging Serilog, test application to illustrate logging via Serilog
 * Print SCP, simple DICOM PRINT Service Class Provider
 * Print SCU, simple DICOM PRINT Service Class User
+* QueryRetrieve SCP, simple Query/Retrieve Service Class Provider that handles c-find, c-get and c-move
+* QueryRetrieve SCU, simple Query/Retrieve Service Class User
 * WADO, simple demonstration of WADO web service implementation, contributed by user [do0om](https://github.com/do0om)
+* Worklist SCP, simple Modality Worklist and MPPS Service Class Provider
 
 #### Universal Windows Platform
 * SimpleViewer, proof-of-concept DICOM viewer for the _Universal Windows Platform_
