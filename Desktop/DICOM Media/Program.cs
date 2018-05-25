@@ -72,23 +72,23 @@ namespace Dicom.Media
             {
                 Console.WriteLine(
                     "Patient: {0} ({1})",
-                    patientRecord.Get<string>(DicomTag.PatientName),
-                    patientRecord.Get<string>(DicomTag.PatientID));
+                    patientRecord.GetSingleValue<string>(DicomTag.PatientName),
+                    patientRecord.GetSingleValue<string>(DicomTag.PatientID));
 
                 foreach (var studyRecord in patientRecord.LowerLevelDirectoryRecordCollection)
                 {
-                    Console.WriteLine("\tStudy: {0}", studyRecord.Get<string>(DicomTag.StudyInstanceUID));
+                    Console.WriteLine("\tStudy: {0}", studyRecord.GetSingleValue<string>(DicomTag.StudyInstanceUID));
 
                     foreach (var seriesRecord in studyRecord.LowerLevelDirectoryRecordCollection)
                     {
-                        Console.WriteLine("\t\tSeries: {0}", seriesRecord.Get<string>(DicomTag.SeriesInstanceUID));
+                        Console.WriteLine("\t\tSeries: {0}", seriesRecord.GetSingleValue<string>(DicomTag.SeriesInstanceUID));
 
                         foreach (var imageRecord in seriesRecord.LowerLevelDirectoryRecordCollection)
                         {
                             Console.WriteLine(
                                 "\t\t\tImage: {0} [{1}]",
-                                imageRecord.Get<string>(DicomTag.ReferencedSOPInstanceUIDInFile),
-                                imageRecord.Get<string>(Dicom.DicomTag.ReferencedFileID));
+                                imageRecord.GetSingleValue<string>(DicomTag.ReferencedSOPInstanceUIDInFile),
+                                imageRecord.GetSingleValue<string>(DicomTag.ReferencedFileID));
                         }
                     }
                 }

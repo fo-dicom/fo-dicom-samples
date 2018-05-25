@@ -21,12 +21,12 @@ namespace Print_SCU
             stopwatch.Start();
 
             var printJob = new PrintJob("DICOM PRINT JOB")
-                               {
-                                   RemoteAddress = "localhost",
-                                   RemotePort = 8000,
-                                   CallingAE = "PRINTSCU",
-                                   CalledAE = "PRINTSCP"
-                               };
+            {
+               RemoteAddress = "localhost",
+               RemotePort = 8000,
+               CallingAE = "PRINTSCU",
+               CalledAE = "PRINTSCP"
+            };
 
             //greyscale
             var greyscaleImg = new DicomImage(@"Data\1.3.51.5155.1353.20020423.1100947.1.0.0.dcm");

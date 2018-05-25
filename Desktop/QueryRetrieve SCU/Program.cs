@@ -36,7 +36,7 @@ namespace QueryRetrieve_SCU
             request.OnResponseReceived += (req, response) =>
             {
                 DebugStudyResponse(response);
-                studyUids.Add(response.Dataset?.Get<string>(DicomTag.StudyInstanceUID));
+                studyUids.Add(response.Dataset?.GetSingleValue<string>(DicomTag.StudyInstanceUID));
             };
             client.AddRequest(request);
             client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
@@ -49,10 +49,10 @@ namespace QueryRetrieve_SCU
             request.OnResponseReceived += (req, response) =>
             {
                 DebugSerieResponse(response);
-                serieUids.Add(response.Dataset?.Get<string>(DicomTag.SeriesInstanceUID));
+                serieUids.Add(response.Dataset?.GetSingleValue<string>(DicomTag.SeriesInstanceUID));
             };
             client.AddRequest(request);
-            client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
+            client.SendAsync(QRServerHost, QRServerPort, false, AET, QRServerAET).Wait();
 
             // now get all the images of a serie with cGet in the same association
 
@@ -194,7 +194,7 @@ namespace QueryRetrieve_SCU
             if (response.Status == DicomStatus.Pending)
             {
                 // print the results
-                Console.WriteLine($"Patient {response.Dataset.Get(DicomTag.PatientName, string.Empty)}, {response.Dataset.Get(DicomTag.ModalitiesInStudy, -1, string.Empty)}-Study from {response.Dataset.Get(DicomTag.StudyDate, new DateTime())} with UID {response.Dataset.Get(DicomTag.StudyInstanceUID, string.Empty)} ");
+                Console.WriteLine($"Patient {response.Dataset.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty)}, {(response.Dataset.TryGetString(DicomTag.ModalitiesInStudy, out var dummy) ? dummy : string.Empty)}-Study from {response.Dataset.GetSingleValueOrDefault(DicomTag.StudyDate, new DateTime())} with UID {response.Dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty)} ");
             }
             if (response.Status == DicomStatus.Success)
             {
@@ -210,7 +210,7 @@ namespace QueryRetrieve_SCU
                 if (response.Status == DicomStatus.Pending)
                 {
                     // print the results
-                    Console.WriteLine($"Serie {response.Dataset.Get<String>(DicomTag.SeriesDescription)}, {response.Dataset.Get<String>(DicomTag.Modality)}, {response.Dataset.Get<int>(DicomTag.NumberOfSeriesRelatedInstances)} instances");
+                    Console.WriteLine($"Serie {response.Dataset.GetSingleValue<String>(DicomTag.SeriesDescription)}, {response.Dataset.GetSingleValue<String>(DicomTag.Modality)}, {response.Dataset.GetSingleValue<int>(DicomTag.NumberOfSeriesRelatedInstances)} instances");
                 }
                 if (response.Status == DicomStatus.Success)
                 {
@@ -224,10 +224,10 @@ namespace QueryRetrieve_SCU
 
         public static void SaveImage(DicomDataset dataset)
         {
-            var studyUid = dataset.Get<string>(DicomTag.StudyInstanceUID);
-            var instUid = dataset.Get<string>(DicomTag.SOPInstanceUID);
+            var studyUid = dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID);
+            var instUid = dataset.GetSingleValue<string>(DicomTag.SOPInstanceUID);
 
-            var path = Path.GetFullPath(Program.StoragePath);
+            var path = Path.GetFullPath(StoragePath);
             path = Path.Combine(path, studyUid);
 
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);

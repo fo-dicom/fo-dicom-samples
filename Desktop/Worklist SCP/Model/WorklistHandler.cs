@@ -16,13 +16,12 @@ namespace Worklist_SCP.Model
         {
             var exams = allWorklistItems.AsQueryable();
 
-            var patientId = request.Get(DicomTag.PatientID, string.Empty);
-            if (!string.IsNullOrEmpty(patientId))
+            if ( request.TryGetSingleValue(DicomTag.PatientID, out string patientId))
             {
                 exams = exams.Where(x => x.PatientID.Equals(patientId));
             }
 
-            var patientName = request.Get(DicomTag.PatientName, string.Empty);
+            var patientName = request.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty);
             if (!string.IsNullOrEmpty(patientName))
             {
                 exams = AddNameCondition(exams, patientName);
@@ -31,22 +30,22 @@ namespace Worklist_SCP.Model
             DicomDataset procedureStep = null;
             if (request.Contains(DicomTag.ScheduledProcedureStepSequence))
             {
-                procedureStep = request.Get<DicomSequence>(DicomTag.ScheduledProcedureStepSequence).First();
+                procedureStep = request.GetSequence(DicomTag.ScheduledProcedureStepSequence).First();
 
                 // Required Matching keys
-                var scheduledStationAET = procedureStep.Get(DicomTag.ScheduledStationAETitle, string.Empty);
+                var scheduledStationAET = procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledStationAETitle, string.Empty);
                 if (!string.IsNullOrEmpty(scheduledStationAET))
                 {
                     exams = exams.Where(x => x.ScheduledAET == scheduledStationAET);
                 }
 
-                var performingPhysician = procedureStep.Get(DicomTag.PerformingPhysicianName, string.Empty);
+                var performingPhysician = procedureStep.GetSingleValueOrDefault(DicomTag.PerformingPhysicianName, string.Empty);
                 if (!string.IsNullOrEmpty(performingPhysician))
                 {
                     exams = exams.Where(x => x.PerformingPhysician == performingPhysician);
                 }
 
-                var modality = procedureStep.Get(DicomTag.Modality, string.Empty);
+                var modality = procedureStep.GetSingleValueOrDefault(DicomTag.Modality, string.Empty);
                 if (!string.IsNullOrEmpty(modality))
                 {
                     exams = exams.Where(x => x.Modality == modality);
@@ -54,20 +53,20 @@ namespace Worklist_SCP.Model
 
                 // if only date is specified, then using standard matching
                 // but if both are specified, then MWL defines a combined match
-                var scheduledProcedureStepStartDateTime = procedureStep.Get(DicomTag.ScheduledProcedureStepStartDateTime, string.Empty);
+                var scheduledProcedureStepStartDateTime = procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepStartDateTime, string.Empty);
                 if (!string.IsNullOrEmpty(scheduledProcedureStepStartDateTime))
                 {
                     exams = AddDateCondition(exams, scheduledProcedureStepStartDateTime);
                 }
 
                 // Optional (but commonly used) matching keys.
-                var procedureStepLocation = procedureStep.Get(DicomTag.ScheduledProcedureStepLocation, string.Empty);
+                var procedureStepLocation = procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepLocation, string.Empty);
                 if (!string.IsNullOrEmpty(procedureStepLocation))
                 {
                     exams = exams.Where(x => x.ExamRoom.Equals(procedureStepLocation));
                 }
 
-                var procedureDescription = procedureStep.Get(DicomTag.ScheduledProcedureStepDescription, string.Empty);
+                var procedureDescription = procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepDescription, string.Empty);
                 if (!string.IsNullOrEmpty(procedureDescription))
                 {
                     exams = exams.Where(x => x.ExamDescription.Equals(procedureDescription));

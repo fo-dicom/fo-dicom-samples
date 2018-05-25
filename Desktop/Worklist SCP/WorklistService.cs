@@ -9,13 +9,14 @@ using System.Text;
 using Dicom.Log;
 using Worklist_SCP.Model;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Worklist_SCP
 {
     public class WorklistService : DicomService, IDicomServiceProvider, IDicomCEchoProvider, IDicomCFindProvider, IDicomNServiceProvider
     {
 
-        public static readonly DicomTransferSyntax[] AcceptedTransferSyntaxes = new DicomTransferSyntax[]
+        private static readonly DicomTransferSyntax[] AcceptedTransferSyntaxes = new DicomTransferSyntax[]
            {
                 DicomTransferSyntax.ExplicitVRLittleEndian,
                 DicomTransferSyntax.ExplicitVRBigEndian,
@@ -77,22 +78,21 @@ namespace Worklist_SCP
         }
 
 
-        public void OnReceiveAssociationReleaseRequest()
+        public Task OnReceiveAssociationReleaseRequestAsync()
         {
             Clean();
-            SendAssociationReleaseResponse();
+            return SendAssociationReleaseResponseAsync();
         }
 
 
-        public void OnReceiveAssociationRequest(DicomAssociation association)
+        public Task OnReceiveAssociationRequestAsync(DicomAssociation association)
         {
             Logger.Info($"Received association request from AE: {association.CallingAE} with IP: {association.RemoteHost} ");
 
             if (WorklistServer.AETitle != association.CalledAE)
             {
                 Logger.Error($"Association with {association.CallingAE} rejected since called aet {association.CalledAE} is unknown");
-                SendAssociationReject(DicomRejectResult.Permanent, DicomRejectSource.ServiceUser, DicomRejectReason.CalledAENotRecognized);
-                return;
+                return SendAssociationRejectAsync(DicomRejectResult.Permanent, DicomRejectSource.ServiceUser, DicomRejectReason.CalledAENotRecognized);
             }
 
             foreach (var pc in association.PresentationContexts)
@@ -113,7 +113,7 @@ namespace Worklist_SCP
             }
 
             Logger.Info($"Accepted association request from {association.CallingAE}");
-            SendAssociationAccept(association);
+            return SendAssociationAcceptAsync(association);
         }
 
 
@@ -130,13 +130,13 @@ namespace Worklist_SCP
                 return new DicomNCreateResponse(request, DicomStatus.SOPClassNotSupported);
             }
             // on N-Create the UID is stored in AffectedSopInstanceUID, in N-Set the UID is stored in RequestedSopInstanceUID
-            var affectedSopInstanceUID = request.Command.Get<String>(DicomTag.AffectedSOPInstanceUID);
+            var affectedSopInstanceUID = request.Command.GetSingleValue<string>(DicomTag.AffectedSOPInstanceUID);
             Logger.Log(LogLevel.Info, $"reeiving N-Create with SOPUID {affectedSopInstanceUID}");
             // get the procedureStepIds from the request
             var procedureStepId = request.Dataset
-                .Get<DicomSequence>(DicomTag.ScheduledStepAttributesSequence)
+                .GetSequence(DicomTag.ScheduledStepAttributesSequence)
                 .First()
-                .Get<string>(DicomTag.ScheduledProcedureStepID);
+                .GetSingleValue<string>(DicomTag.ScheduledProcedureStepID);
             var ok = MppsSource.SetInProgress(affectedSopInstanceUID, procedureStepId);
 
             return new DicomNCreateResponse(request, ok ? DicomStatus.Success : DicomStatus.ProcessingFailure);
@@ -150,26 +150,26 @@ namespace Worklist_SCP
                 return new DicomNSetResponse(request, DicomStatus.SOPClassNotSupported);
             }
             // on N-Create the UID is stored in AffectedSopInstanceUID, in N-Set the UID is stored in RequestedSopInstanceUID
-            var requestedSopInstanceUID = request.Command.Get<string>(DicomTag.RequestedSOPInstanceUID);
+            var requestedSopInstanceUID = request.Command.GetSingleValue<string>(DicomTag.RequestedSOPInstanceUID);
             Logger.Log(LogLevel.Info, $"receiving N-Set with SOPUID {requestedSopInstanceUID}");
 
-            var status = request.Dataset.Get<string>(DicomTag.PerformedProcedureStepStatus);
+            var status = request.Dataset.GetSingleValue<string>(DicomTag.PerformedProcedureStepStatus);
             if (status == "COMPLETED")
             {
                 // most vendors send some informations with the mpps-completed message. 
                 // this information should be stored into the datbase
-                var doseDescription = request.Dataset.Get(DicomTag.CommentsOnRadiationDose, string.Empty);
+                var doseDescription = request.Dataset.GetSingleValueOrDefault(DicomTag.CommentsOnRadiationDose, string.Empty);
                 var listOfInstanceUIDs = new List<string>();
-                foreach (var seriesDataset in request.Dataset.Get<DicomSequence>(DicomTag.PerformedSeriesSequence))
+                foreach (var seriesDataset in request.Dataset.GetSequence(DicomTag.PerformedSeriesSequence))
                 {
                     // you can read here some information about the series that the modalidy created
                     //seriesDataset.Get(DicomTag.SeriesDescription, string.Empty);
                     //seriesDataset.Get(DicomTag.PerformingPhysicianName, string.Empty);
                     //seriesDataset.Get(DicomTag.ProtocolName, string.Empty);
-                    foreach (var instanceDataset in seriesDataset.Get<DicomSequence>(DicomTag.ReferencedImageSequence))
+                    foreach (var instanceDataset in seriesDataset.GetSequence(DicomTag.ReferencedImageSequence))
                     {
                         // here you can read the SOPClassUID and SOPInstanceUID
-                        var instanceUID = instanceDataset.Get(DicomTag.ReferencedSOPInstanceUID, string.Empty);
+                        var instanceUID = instanceDataset.GetSingleValueOrDefault(DicomTag.ReferencedSOPInstanceUID, string.Empty);
                         if (!string.IsNullOrEmpty(instanceUID)) listOfInstanceUIDs.Add(instanceUID);
                     }
                 }

@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Sockets;
 using QueryRetrieve_SCP.Model;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace QueryRetrieve_SCP
 {
@@ -20,7 +21,7 @@ namespace QueryRetrieve_SCP
     {
 
 
-        public static readonly DicomTransferSyntax[] AcceptedTransferSyntaxes = new DicomTransferSyntax[]
+        private static readonly DicomTransferSyntax[] AcceptedTransferSyntaxes = new DicomTransferSyntax[]
             {
                 DicomTransferSyntax.ExplicitVRLittleEndian,
                 DicomTransferSyntax.ExplicitVRBigEndian,
@@ -28,7 +29,7 @@ namespace QueryRetrieve_SCP
             };
 
 
-        public static readonly DicomTransferSyntax[] AcceptedImageTransferSyntaxes = new DicomTransferSyntax[]
+        private static readonly DicomTransferSyntax[] AcceptedImageTransferSyntaxes = new DicomTransferSyntax[]
             {
                 // Lossless
                 DicomTransferSyntax.JPEGLSLossless,
@@ -90,14 +91,14 @@ namespace QueryRetrieve_SCP
         }
 
 
-        public void OnReceiveAssociationReleaseRequest()
+        public Task OnReceiveAssociationReleaseRequestAsync()
         {
             Clean();
-            SendAssociationReleaseResponse();
+            return SendAssociationReleaseResponseAsync();
         }
 
 
-        public void OnReceiveAssociationRequest(DicomAssociation association)
+        public Task OnReceiveAssociationRequestAsync(DicomAssociation association)
         {
             CallingAE = association.CallingAE;
             CalledAE = association.CalledAE;
@@ -107,8 +108,7 @@ namespace QueryRetrieve_SCP
             if (QRServer.AETitle != CalledAE)
             {
                 Logger.Error($"Association with {CallingAE} rejected since called aet {CalledAE} is unknown");
-                SendAssociationReject(DicomRejectResult.Permanent, DicomRejectSource.ServiceUser, DicomRejectReason.CalledAENotRecognized);
-                return;
+                return SendAssociationRejectAsync(DicomRejectResult.Permanent, DicomRejectSource.ServiceUser, DicomRejectReason.CalledAENotRecognized);
             }
 
             foreach (var pc in association.PresentationContexts)
@@ -138,7 +138,7 @@ namespace QueryRetrieve_SCP
             }
 
             Logger.Info($"Accepted association request from {CallingAE}");
-            SendAssociationAccept(association);
+            return SendAssociationAcceptAsync(association);
         }
 
 
@@ -156,8 +156,8 @@ namespace QueryRetrieve_SCP
             {
                 case DicomQueryRetrieveLevel.Patient:
                     {
-                        var patname = request.Dataset.Get(DicomTag.PatientName, string.Empty);
-                        var patid = request.Dataset.Get(DicomTag.PatientID, string.Empty);
+                        var patname = request.Dataset.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty);
+                        var patid = request.Dataset.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty);
 
                         matchingFiles = finderService.FindPatientFiles(patname, patid);
                     }
@@ -165,10 +165,10 @@ namespace QueryRetrieve_SCP
 
                 case DicomQueryRetrieveLevel.Study:
                     {
-                        var patname = request.Dataset.Get(DicomTag.PatientName, string.Empty);
-                        var patid = request.Dataset.Get(DicomTag.PatientID, string.Empty);
-                        var accNr = request.Dataset.Get(DicomTag.AccessionNumber, string.Empty);
-                        var studyUID = request.Dataset.Get(DicomTag.StudyInstanceUID, string.Empty);
+                        var patname = request.Dataset.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty);
+                        var patid = request.Dataset.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty);
+                        var accNr = request.Dataset.GetSingleValueOrDefault(DicomTag.AccessionNumber, string.Empty);
+                        var studyUID = request.Dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty);
 
                         matchingFiles = finderService.FindStudyFiles(patname, patid, accNr, studyUID);
                     }
@@ -176,12 +176,12 @@ namespace QueryRetrieve_SCP
 
                 case DicomQueryRetrieveLevel.Series:
                     {
-                        var patname = request.Dataset.Get(DicomTag.PatientName, string.Empty);
-                        var patid = request.Dataset.Get(DicomTag.PatientID, string.Empty);
-                        var accNr = request.Dataset.Get(DicomTag.AccessionNumber, string.Empty);
-                        var studyUID = request.Dataset.Get(DicomTag.StudyInstanceUID, string.Empty);
-                        var seriesUID = request.Dataset.Get(DicomTag.SeriesInstanceUID, string.Empty);
-                        var modality = request.Dataset.Get(DicomTag.Modality, string.Empty);
+                        var patname = request.Dataset.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty);
+                        var patid = request.Dataset.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty);
+                        var accNr = request.Dataset.GetSingleValueOrDefault(DicomTag.AccessionNumber, string.Empty);
+                        var studyUID = request.Dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty);
+                        var seriesUID = request.Dataset.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty);
+                        var modality = request.Dataset.GetSingleValueOrDefault(DicomTag.Modality, string.Empty);
 
                         matchingFiles = finderService.FindSeriesFiles(patname, patid, accNr, studyUID, seriesUID, modality);
                     }
@@ -250,15 +250,15 @@ namespace QueryRetrieve_SCP
             switch (request.Level)
             {
                 case DicomQueryRetrieveLevel.Patient:
-                    matchingFiles = finderService.FindFilesByUID(request.Dataset.Get<string>(DicomTag.PatientID), string.Empty, string.Empty);
+                    matchingFiles = finderService.FindFilesByUID(request.Dataset.GetSingleValue<string>(DicomTag.PatientID), string.Empty, string.Empty);
                     break;
 
                 case DicomQueryRetrieveLevel.Study:
-                    matchingFiles = finderService.FindFilesByUID(string.Empty, request.Dataset.Get<string>(DicomTag.StudyInstanceUID), string.Empty);
+                    matchingFiles = finderService.FindFilesByUID(string.Empty, request.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID), string.Empty);
                     break;
 
                 case DicomQueryRetrieveLevel.Series:
-                    matchingFiles = finderService.FindFilesByUID(string.Empty, string.Empty, request.Dataset.Get<string>(DicomTag.SeriesInstanceUID));
+                    matchingFiles = finderService.FindFilesByUID(string.Empty, string.Empty, request.Dataset.GetSingleValue<string>(DicomTag.SeriesInstanceUID));
                     break;
 
                 case DicomQueryRetrieveLevel.Image:
@@ -318,15 +318,15 @@ namespace QueryRetrieve_SCP
             switch (request.Level)
             {
                 case DicomQueryRetrieveLevel.Patient:
-                    matchingFiles = finderService.FindFilesByUID(request.Dataset.Get<string>(DicomTag.PatientID), string.Empty, string.Empty);
+                    matchingFiles = finderService.FindFilesByUID(request.Dataset.GetSingleValue<string>(DicomTag.PatientID), string.Empty, string.Empty);
                     break;
 
                 case DicomQueryRetrieveLevel.Study:
-                    matchingFiles = finderService.FindFilesByUID(string.Empty, request.Dataset.Get<string>(DicomTag.StudyInstanceUID), string.Empty);
+                    matchingFiles = finderService.FindFilesByUID(string.Empty, request.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID), string.Empty);
                     break;
 
                 case DicomQueryRetrieveLevel.Series:
-                    matchingFiles = finderService.FindFilesByUID(string.Empty, string.Empty, request.Dataset.Get<string>(DicomTag.SeriesInstanceUID));
+                    matchingFiles = finderService.FindFilesByUID(string.Empty, string.Empty, request.Dataset.GetSingleValue<string>(DicomTag.SeriesInstanceUID));
                     break;
 
                 case DicomQueryRetrieveLevel.Image:
@@ -337,7 +337,7 @@ namespace QueryRetrieve_SCP
             foreach (var matchingFile in matchingFiles)
             {
                 var storeRequest = new DicomCStoreRequest(matchingFile);
-                SendRequest(storeRequest);
+                SendRequestAsync(storeRequest).Wait();
             }
 
             yield return new DicomCGetResponse(request, DicomStatus.Success);

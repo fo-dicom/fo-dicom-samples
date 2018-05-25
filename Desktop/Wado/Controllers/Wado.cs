@@ -254,7 +254,7 @@ namespace Wado.Controllers
         private static string PickFinalContentType(string[] compatibleContentTypesByOrderOfPreference, DicomFile dicomFile)
         {
             string chosenContentType = null;
-            int nbFrames = dicomFile.Dataset.Get<int>(DicomTag.NumberOfFrames);
+            int nbFrames = dicomFile.Dataset.GetSingleValue<int>(DicomTag.NumberOfFrames);
 
             //if compatibleContentTypesByOrderOfPreference is null,
             //it means we must choose a default content type based on image content:
