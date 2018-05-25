@@ -1,11 +1,10 @@
-﻿// Copyright (c) 2012-2017 fo-dicom contributors.
+﻿// Copyright (c) 2012-2018 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-
 using Dicom.IO.Buffer;
 
 namespace Dicom.Compare

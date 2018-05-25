@@ -1,19 +1,16 @@
-﻿// Copyright (c) 2012-2016 fo-dicom contributors.
+﻿// Copyright (c) 2012-2018 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
+
+using System;
+using System.IO;
+using NLog.Config;
+using NLog.Targets;
+using Dicom;
+using Dicom.Log;
+using Dicom.Network;
 
 namespace ConsoleTest
 {
-    using System;
-    using System.IO;
-
-    using NLog.Config;
-    using NLog.Targets;
-
-    using Dicom;
-    using Dicom.Imaging;
-    using Dicom.Log;
-    using Dicom.Network;
-
     internal class Program
     {
         private static void Main(string[] args)

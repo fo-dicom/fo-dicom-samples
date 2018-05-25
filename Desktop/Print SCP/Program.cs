@@ -1,12 +1,12 @@
-﻿// Copyright (c) 2012-2016 fo-dicom contributors.
+﻿// Copyright (c) 2012-2018 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
+
+using System;
+using Dicom.Log;
+using Dicom.Printing;
 
 namespace Print_SCP
 {
-    using System;
-
-    using Dicom.Log;
-    using Dicom.Printing;
 
     internal class Program
     {
