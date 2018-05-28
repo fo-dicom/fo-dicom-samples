@@ -68,6 +68,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Model\IMppsSource.cs" />
     <Compile Include="Model\IWorklistItemsSource.cs" />
     <Compile Include="Model\MppsHandler.cs" />
