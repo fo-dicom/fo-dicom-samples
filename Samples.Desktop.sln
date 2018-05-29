@@ -27,6 +27,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worklist SCP", "Desktop\Wor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "C-Store SCU", "Desktop\C-Store SCU\C-Store SCU.csproj", "{832AF402-22A1-4D28-9179-05B4D8FE44E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worklist SCU", "Desktop\Worklist SCU\Worklist SCU.csproj", "{7E4D2675-91E7-4247-A511-F0AF5AB64E18}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A569366D-4264-4A95-9735-C4F144BA94D9}"
+	ProjectSection(SolutionItems) = preProject
+		License.txt = License.txt
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +139,14 @@ Global
 		{832AF402-22A1-4D28-9179-05B4D8FE44E9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{832AF402-22A1-4D28-9179-05B4D8FE44E9}.Release|x86.ActiveCfg = Release|x86
 		{832AF402-22A1-4D28-9179-05B4D8FE44E9}.Release|x86.Build.0 = Release|x86
+		{7E4D2675-91E7-4247-A511-F0AF5AB64E18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E4D2675-91E7-4247-A511-F0AF5AB64E18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E4D2675-91E7-4247-A511-F0AF5AB64E18}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7E4D2675-91E7-4247-A511-F0AF5AB64E18}.Debug|x86.Build.0 = Debug|Any CPU
+		{7E4D2675-91E7-4247-A511-F0AF5AB64E18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E4D2675-91E7-4247-A511-F0AF5AB64E18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E4D2675-91E7-4247-A511-F0AF5AB64E18}.Release|x86.ActiveCfg = Release|Any CPU
+		{7E4D2675-91E7-4247-A511-F0AF5AB64E18}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
