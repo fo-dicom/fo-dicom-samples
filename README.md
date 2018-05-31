@@ -1,7 +1,7 @@
 <img src="https://lh3.googleusercontent.com/-Fq3nigRUo7U/VfaIPuJMjfI/AAAAAAAAALo/7oaLrrTBhnw/s1600/Fellow%2BOak%2BSquare%2BTransp.png" alt="fo-dicom logo" height="80" />
 
 # Fellow Oak DICOM Samples
-**Sample applications associated with the [fo-dicom](https://github.com/fo-dicom/fo-dicom) framework, version 3.0.0.**
+**Sample applications associated with the [fo-dicom](https://github.com/fo-dicom/fo-dicom) framework, version 4.0.0-rc1**
 
 ### Contributions
 Sample contributions from the community are more than welcome. Make a pull request of your sample application for our prompt consideration.
@@ -20,6 +20,7 @@ Sample contributions from the community are more than welcome. Make a pull reque
 * QueryRetrieve SCU, simple Query/Retrieve Service Class User
 * WADO, simple demonstration of WADO web service implementation, contributed by user [do0om](https://github.com/do0om)
 * Worklist SCP, simple Modality Worklist and MPPS Service Class Provider
+* Worklist SCU, simple Modality Worklist and MPPS Service Class User
 
 #### Universal Windows Platform
 * SimpleViewer, proof-of-concept DICOM viewer for the _Universal Windows Platform_

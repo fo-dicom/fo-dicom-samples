@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2016 fo-dicom contributors.
+﻿// Copyright (c) 2012-2018 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -28,31 +28,24 @@ namespace Print_SCU
         public PrintJob(string jobLabel)
         {
             FilmSession = new FilmSession(DicomUID.BasicFilmSessionSOPClass)
-                              {
-                                  FilmSessionLabel = jobLabel,
-                                  MediumType = "PAPER",
-                                  NumberOfCopies = 1
-                              };
+            {
+               FilmSessionLabel = jobLabel,
+               MediumType = "PAPER",
+               NumberOfCopies = 1
+            };
         }
 
         public FilmBox StartFilmBox(string format, string orientation, string filmSize)
         {
             var filmBox = new FilmBox(FilmSession, null, DicomTransferSyntax.ExplicitVRLittleEndian)
-                              {
-                                  ImageDisplayFormat
-                                      = format,
-                                  FilmOrienation
-                                      =
-                                      orientation,
-                                  FilmSizeID =
-                                      filmSize,
-                                  MagnificationType
-                                      = "NONE",
-                                  BorderDensity =
-                                      "BLACK",
-                                  EmptyImageDensity
-                                      = "BLACK"
-                              };
+            {
+               ImageDisplayFormat = format,
+               FilmOrientation = orientation,
+               FilmSizeID = filmSize,
+               MagnificationType = "NONE",
+               BorderDensity = "BLACK",
+               EmptyImageDensity = "BLACK"
+            };
 
             filmBox.Initialize();
             FilmSession.BasicFilmBoxes.Add(filmBox);
@@ -177,21 +170,19 @@ namespace Print_SCU
                 var imageBoxRequests = new List<DicomNSetRequest>();
 
                 var filmBoxRequest = new DicomNCreateRequest(FilmBox.SOPClassUID, filmbox.SOPInstanceUID)
-                                         {
-                                             Dataset
-                                                 =
-                                                 filmbox
-                                         };
+                {
+                   Dataset = filmbox
+                };
                 filmBoxRequest.OnResponseReceived = (request, response) =>
                     {
                         if (response.HasDataset)
                         {
-                            var seq = response.Dataset.Get<DicomSequence>(DicomTag.ReferencedImageBoxSequence);
+                            var seq = response.Dataset.GetSequence(DicomTag.ReferencedImageBoxSequence);
                             for (int i = 0; i < seq.Items.Count; i++)
                             {
                                 var req = imageBoxRequests[i];
                                 var imageBox = req.Dataset;
-                                var sopInstanceUid = seq.Items[i].Get<string>(DicomTag.ReferencedSOPInstanceUID);
+                                var sopInstanceUid = seq.Items[i].GetSingleValue<string>(DicomTag.ReferencedSOPInstanceUID);
                                 imageBox.AddOrUpdate(DicomTag.SOPInstanceUID, sopInstanceUid);
                                 req.Command.AddOrUpdate(DicomTag.RequestedSOPInstanceUID, sopInstanceUid);
                             }

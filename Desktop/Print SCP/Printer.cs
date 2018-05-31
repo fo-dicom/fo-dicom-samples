@@ -1,9 +1,7 @@
-﻿// Copyright (c) 2012-2016 fo-dicom contributors.
+﻿// Copyright (c) 2012-2018 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
-
-//[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("PaXtreme.Dicom.Test")]
 
 namespace Dicom.Printing
 {
@@ -26,14 +24,8 @@ namespace Dicom.Printing
         /// </remarks>
         public string PrinterStatus
         {
-            get
-            {
-                return Get<string>(DicomTag.PrinterStatus, "NORMAL");
-            }
-            private set
-            {
-                Add(DicomTag.PrinterStatus, value);
-            }
+            get => GetSingleValueOrDefault(DicomTag.PrinterStatus, "NORMAL");
+            private set => Add(DicomTag.PrinterStatus, value);
         }
 
         /// <summary>
@@ -45,14 +37,8 @@ namespace Dicom.Printing
         /// </remarks>
         public string PrinterStatusInfo
         {
-            get
-            {
-                return Get<string>(DicomTag.PrinterStatusInfo, "NORMAL");
-            }
-            private set
-            {
-                Add(DicomTag.PrinterStatusInfo, value);
-            }
+            get => GetSingleValueOrDefault(DicomTag.PrinterStatusInfo, "NORMAL");
+            private set => Add(DicomTag.PrinterStatusInfo, value);
         }
 
         /// <summary>
@@ -60,14 +46,8 @@ namespace Dicom.Printing
         /// </summary>
         public string PrinterName
         {
-            get
-            {
-                return Get(DicomTag.PrinterName, string.Empty);
-            }
-            private set
-            {
-                Add(DicomTag.PrinterName, value);
-            }
+            get => GetSingleValueOrDefault(DicomTag.PrinterName, string.Empty);
+            private set => Add(DicomTag.PrinterName, value);
         }
 
         /// <summary>
@@ -75,14 +55,8 @@ namespace Dicom.Printing
         /// </summary>
         public string Manufacturer
         {
-            get
-            {
-                return Get(DicomTag.Manufacturer, "Nebras Technology");
-            }
-            private set
-            {
-                Add(DicomTag.Manufacturer, value);
-            }
+            get => GetSingleValueOrDefault(DicomTag.Manufacturer, "Nebras Technology");
+            private set => Add(DicomTag.Manufacturer, value);
         }
 
         /// <summary>
@@ -90,14 +64,8 @@ namespace Dicom.Printing
         /// </summary>
         public string ManufacturerModelName
         {
-            get
-            {
-                return Get(DicomTag.ManufacturerModelName, "PaXtreme Printer");
-            }
-            private set
-            {
-                Add(DicomTag.ManufacturerModelName, value);
-            }
+            get => GetSingleValueOrDefault(DicomTag.ManufacturerModelName, "PaXtreme Printer");
+            private set => Add(DicomTag.ManufacturerModelName, value);
         }
 
         /// <summary>
@@ -105,14 +73,8 @@ namespace Dicom.Printing
         /// </summary>
         public string DeviceSerialNumber
         {
-            get
-            {
-                return Get(DicomTag.DeviceSerialNumber, string.Empty);
-            }
-            private set
-            {
-                Add(DicomTag.DeviceSerialNumber, value);
-            }
+            get => GetSingleValueOrDefault(DicomTag.DeviceSerialNumber, string.Empty);
+            private set => Add(DicomTag.DeviceSerialNumber, value);
         }
 
         /// <summary>
@@ -120,14 +82,8 @@ namespace Dicom.Printing
         /// </summary>
         public string SoftwareVersions
         {
-            get
-            {
-                return Get(DicomTag.SoftwareVersions, string.Empty);
-            }
-            private set
-            {
-                Add(DicomTag.SoftwareVersions, value);
-            }
+            get => GetSingleValueOrDefault(DicomTag.SoftwareVersions, string.Empty);
+            private set => Add(DicomTag.SoftwareVersions, value);
         }
 
         /// <summary>
@@ -135,10 +91,7 @@ namespace Dicom.Printing
         /// </summary>
         public DateTime DateTimeOfLastCalibration
         {
-            get
-            {
-                return this.GetDateTime(DicomTag.DateOfLastCalibration, DicomTag.TimeOfLastCalibration);
-            }
+            get => this.GetDateTime(DicomTag.DateOfLastCalibration, DicomTag.TimeOfLastCalibration);
             private set
             {
                 Add(DicomTag.DateOfLastCalibration, value);

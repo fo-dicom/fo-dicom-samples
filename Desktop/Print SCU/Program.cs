@@ -1,14 +1,13 @@
-﻿// Copyright (c) 2012-2016 fo-dicom contributors.
+﻿// Copyright (c) 2012-2018 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
+
+using System;
+using System.Drawing;
+using Dicom.Imaging;
+using Dicom.Log;
 
 namespace Print_SCU
 {
-    using System;
-    using System.Drawing;
-
-    using Dicom;
-    using Dicom.Imaging;
-    using Dicom.Log;
 
     internal class Program
     {
@@ -21,12 +20,12 @@ namespace Print_SCU
             stopwatch.Start();
 
             var printJob = new PrintJob("DICOM PRINT JOB")
-                               {
-                                   RemoteAddress = "localhost",
-                                   RemotePort = 8000,
-                                   CallingAE = "PRINTSCU",
-                                   CalledAE = "PRINTSCP"
-                               };
+            {
+               RemoteAddress = "localhost",
+               RemotePort = 8000,
+               CallingAE = "PRINTSCU",
+               CalledAE = "PRINTSCP"
+            };
 
             //greyscale
             var greyscaleImg = new DicomImage(@"Data\1.3.51.5155.1353.20020423.1100947.1.0.0.dcm");

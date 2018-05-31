@@ -18,12 +18,12 @@ namespace QueryRetrieve_SCP.Model
         {
             // usually here a SQL statement is built to query a Patient-table
             return SearchInFilesystem(
-                dcmFile => dcmFile.Get(DicomTag.PatientID, string.Empty),
+                dcmFile => dcmFile.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty),
                 dcmFile =>
                 {
                     bool matches = true;
-                    matches &= MatchFilter(PatientName, dcmFile.Get(DicomTag.PatientName, string.Empty));
-                    matches &= MatchFilter(PatientId, dcmFile.Get(DicomTag.PatientID, string.Empty));
+                    matches &= MatchFilter(PatientName, dcmFile.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty));
+                    matches &= MatchFilter(PatientId, dcmFile.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty));
                     return matches;
                 });
         }
@@ -33,14 +33,14 @@ namespace QueryRetrieve_SCP.Model
         {
             // usually here a SQL statement is built to query a Study-table
             return SearchInFilesystem(
-                dcmFile => dcmFile.Get(DicomTag.StudyInstanceUID, string.Empty),
+                dcmFile => dcmFile.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty),
                 dcmFile =>
                 {
                     bool matches = true;
-                    matches &= MatchFilter(PatientName, dcmFile.Get(DicomTag.PatientName, string.Empty));
-                    matches &= MatchFilter(PatientId, dcmFile.Get(DicomTag.PatientID, string.Empty));
-                    matches &= MatchFilter(AccessionNbr, dcmFile.Get(DicomTag.AccessionNumber, string.Empty));
-                    matches &= MatchFilter(StudyUID, dcmFile.Get(DicomTag.StudyInstanceUID, string.Empty));
+                    matches &= MatchFilter(PatientName, dcmFile.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty));
+                    matches &= MatchFilter(PatientId, dcmFile.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty));
+                    matches &= MatchFilter(AccessionNbr, dcmFile.GetSingleValueOrDefault(DicomTag.AccessionNumber, string.Empty));
+                    matches &= MatchFilter(StudyUID, dcmFile.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty));
                     return matches;
                 });
         }
@@ -50,16 +50,16 @@ namespace QueryRetrieve_SCP.Model
         {
             // usually here a SQL statement is built to query a Series-table
             return SearchInFilesystem(
-                dcmFile => dcmFile.Get(DicomTag.SeriesInstanceUID, string.Empty),
+                dcmFile => dcmFile.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty),
                 dcmFile =>
                 {
                     bool matches = true;
-                    matches &= MatchFilter(PatientName, dcmFile.Get(DicomTag.PatientName, string.Empty));
-                    matches &= MatchFilter(PatientId, dcmFile.Get(DicomTag.PatientID, string.Empty));
-                    matches &= MatchFilter(AccessionNbr, dcmFile.Get(DicomTag.AccessionNumber, string.Empty));
-                    matches &= MatchFilter(StudyUID, dcmFile.Get(DicomTag.StudyInstanceUID, string.Empty));
-                    matches &= MatchFilter(SeriesUID, dcmFile.Get(DicomTag.SeriesInstanceUID, string.Empty));
-                    matches &= MatchFilter(Modality, dcmFile.Get(DicomTag.Modality, string.Empty));
+                    matches &= MatchFilter(PatientName, dcmFile.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty));
+                    matches &= MatchFilter(PatientId, dcmFile.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty));
+                    matches &= MatchFilter(AccessionNbr, dcmFile.GetSingleValueOrDefault(DicomTag.AccessionNumber, string.Empty));
+                    matches &= MatchFilter(StudyUID, dcmFile.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty));
+                    matches &= MatchFilter(SeriesUID, dcmFile.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty));
+                    matches &= MatchFilter(Modality, dcmFile.GetSingleValueOrDefault(DicomTag.Modality, string.Empty));
                     return matches;
                 });
         }
@@ -111,9 +111,9 @@ namespace QueryRetrieve_SCP.Model
                     var dcmFile = DicomFile.Open(fileNameToTest);
 
                     bool matches = true;
-                    matches &= MatchFilter(PatientId, dcmFile.Dataset.Get(DicomTag.PatientID, string.Empty));
-                    matches &= MatchFilter(StudyUID, dcmFile.Dataset.Get(DicomTag.StudyInstanceUID, string.Empty));
-                    matches &= MatchFilter(SeriesUID, dcmFile.Dataset.Get(DicomTag.SeriesInstanceUID, string.Empty));
+                    matches &= MatchFilter(PatientId, dcmFile.Dataset.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty));
+                    matches &= MatchFilter(StudyUID, dcmFile.Dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty));
+                    matches &= MatchFilter(SeriesUID, dcmFile.Dataset.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty));
 
                     if (matches)
                     {
