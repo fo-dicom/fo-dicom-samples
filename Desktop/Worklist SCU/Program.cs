@@ -7,16 +7,18 @@ using Dicom.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Worklist_SCU
 {
-   class Program
+   public class Program
    {
 
       private const string PerformedStationAETitle = "Modality";
       private const string PerformedStationName = "Modality";
+
+      protected Program()
+      {
+      }
 
       public static void Main(string[] args)
       {
@@ -36,22 +38,64 @@ namespace Worklist_SCU
 
          // take the first result and set it to in-progress via mpps
          var worklistItem = worklistItems.First();
-         var responseProgress = SendMppsInProgress(serverIP, serverPort, serverAET, clientAET, worklistItem);
-         Console.WriteLine($"in progress sent with response {responseProgress.responseStatus} ({responseProgress.responseMessage})");
+         var (affectedInstanceUid, responseStatus, responseMessage) = SendMppsInProgress(serverIP, serverPort, serverAET, clientAET, worklistItem);
+         Console.WriteLine($"in progress sent with response {responseStatus} ({responseMessage})");
 
          // then send the compleded
-         var responseCompleted = SendMppsCompleted(serverIP, serverPort, serverAET, clientAET, responseProgress.affectedInstanceUid, worklistItem);
+         var responseCompleted = SendMppsCompleted(serverIP, serverPort, serverAET, clientAET, affectedInstanceUid, worklistItem);
          Console.WriteLine($"completed sent with response {responseCompleted.responseStatus} ({responseCompleted.responseMessage})");
 
          Console.ReadLine();
       }
+
 
       private static (string responseStatus, string responseMessage) SendMppsCompleted(string serverIP, int serverPort, string serverAET, string clientAET, DicomUID affectedInstanceUid, DicomDataset worklistItem)
       {
          var client = new DicomClient();
          var dataset = new DicomDataset();
 
+         DicomSequence procedureStepSq = worklistItem.GetSequence(DicomTag.ScheduledProcedureStepSequence);
+         // A worklistitem may have a list of scheduledprocedureSteps.
+         // For each of them you have to send separate MPPS InProgress- and Completed-messages.
+         // there in this example we will only send for the first procedure step
+         var procedureStep = procedureStepSq.First();
+
+         // data
+         dataset.Add(DicomTag.PerformedProcedureStepEndDate, DateTime.Now);
+         dataset.Add(DicomTag.PerformedProcedureStepEndTime, DateTime.Now);
          dataset.Add(DicomTag.PerformedProcedureStepStatus, "COMPLETED");
+         dataset.Add(DicomTag.PerformedProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
+         dataset.Add(DicomTag.PerformedProcedureTypeDescription, string.Empty);
+
+         dataset.Add(DicomTag.PerformedProtocolCodeSequence, new DicomDataset());
+
+         // dose and reports
+         dataset.Add(DicomTag.ImageAndFluoroscopyAreaDoseProduct, 0.0m); // if there has bee sone dose while examination
+         dataset.Add(DicomTag.CommentsOnRadiationDose, string.Empty); // a free text that contains all dose parameters
+
+         // images created
+         var performedSeriesSq = new DicomSequence(DicomTag.PerformedSeriesSequence);
+         // iterate all Series that have been created while examination
+         var serie = new DicomDataset
+         {
+            { DicomTag.RetrieveAETitle, string.Empty }, // the aetitle of the archive where the images have been sent to
+            { DicomTag.SeriesDescription, "serie 1" },
+            { DicomTag.PerformingPhysicianName, string.Empty },
+            { DicomTag.OperatorsName, string.Empty },
+            { DicomTag.ProtocolName, string.Empty },
+            { DicomTag.SeriesInstanceUID, DicomUID.Generate() }
+         };
+         var refImagesInSerie = new DicomSequence(DicomTag.ReferencedImageSequence);
+         // iterate all images in the serie
+         var image = new DicomDataset
+         {
+            { DicomTag.ReferencedSOPClassUID, DicomUID.SecondaryCaptureImageStorage },
+            { DicomTag.ReferencedSOPInstanceUID, DicomUID.Generate() }
+         };
+         refImagesInSerie.Items.Add(image);
+         serie.Add(refImagesInSerie);
+         performedSeriesSq.Items.Add(serie);
+         dataset.Add(performedSeriesSq);
 
          var dicomFinished = new DicomNSetRequest(DicomUID.ModalityPerformedProcedureStepSOPClass, affectedInstanceUid)
          {
@@ -72,23 +116,26 @@ namespace Worklist_SCU
          };
 
          client.AddRequest(dicomFinished);
-         client.Send(serverIP, serverPort, false, clientAET, serverAET);
+         client.SendAsync(serverIP, serverPort, false, clientAET, serverAET).Wait();
 
          return (responseStatus, responseMessage);
       }
+
 
       private static (DicomUID affectedInstanceUid, string responseStatus, string responseMessage) SendMppsInProgress(string serverIP, int serverPort, string serverAET, string clientAET, DicomDataset worklistItem)
       {
          var client = new DicomClient();
          var dataset = new DicomDataset();
 
-         DicomSequence sq = worklistItem.GetSequence(DicomTag.ScheduledProcedureStepSequence);
+         DicomSequence procedureStepSq = worklistItem.GetSequence(DicomTag.ScheduledProcedureStepSequence);
+         // A worklistitem may have a list of scheduledprocedureSteps.
+         // For each of them you have to send separate MPPS InProgress- and Completed-messages.
+         // there in this example we will only send for the first procedure step
+         var procedureStep = procedureStepSq.First();
 
          DicomDataset content = new DicomDataset();
          // get study instance UID from MWL query resault
          string studyInstanceUID = worklistItem.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, DicomUID.Generate().ToString());
-         DicomUID instanceDicomUid = DicomUID.Generate();
-         DicomUID sopDicomUid = DicomUID.Generate();
 
          // set Attribute Sequence data 
          content.Add(DicomTag.StudyInstanceUID, studyInstanceUID);
@@ -96,8 +143,8 @@ namespace Worklist_SCU
          content.Add(DicomTag.AccessionNumber, worklistItem.GetSingleValueOrDefault(DicomTag.AccessionNumber, String.Empty));
          content.Add(DicomTag.RequestedProcedureID, worklistItem.GetSingleValueOrDefault(DicomTag.RequestedProcedureID, String.Empty));
          content.Add(DicomTag.RequestedProcedureDescription, worklistItem.GetSingleValueOrDefault(DicomTag.RequestedProcedureDescription, String.Empty));
-         content.Add(DicomTag.ScheduledProcedureStepID, sq.First().GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
-         content.Add(DicomTag.ScheduledProcedureStepDescription, sq.First().GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
+         content.Add(DicomTag.ScheduledProcedureStepID, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
+         content.Add(DicomTag.ScheduledProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepDescription, String.Empty));
          content.Add(DicomTag.ScheduledProtocolCodeSequence, new DicomDataset());
 
          DicomSequence attr_Sequence = new DicomSequence(DicomTag.ScheduledStepAttributesSequence, content);//"Scheduled Step Attribute Sequence"
@@ -109,28 +156,27 @@ namespace Worklist_SCU
          dataset.Add(DicomTag.PatientSex, worklistItem.GetSingleValueOrDefault(DicomTag.PatientSex, String.Empty));
 
          dataset.Add(DicomTag.ReferencedPatientSequence, new DicomDataset());
-         dataset.Add(DicomTag.PerformedProcedureStepID, sq.First().GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
+         dataset.Add(DicomTag.PerformedProcedureStepID, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
          dataset.Add(DicomTag.PerformedStationAETitle, PerformedStationAETitle);
          dataset.Add(DicomTag.PerformedStationName, PerformedStationName);
          dataset.Add(DicomTag.PerformedLocation, string.Empty);
          dataset.Add(DicomTag.PerformedProcedureStepStartDate, DateTime.Now);
          dataset.Add(DicomTag.PerformedProcedureStepStartTime, DateTime.Now);
-         // set status 
+         // set status
          dataset.Add(DicomTag.PerformedProcedureStepStatus, "IN PROGRESS");
-         dataset.Add(DicomTag.PerformedProcedureStepDescription, sq.First().GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
+         dataset.Add(DicomTag.PerformedProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
          dataset.Add(DicomTag.PerformedProcedureTypeDescription, string.Empty);
 
          dataset.Add(DicomTag.PerformedProcedureStepEndDate, string.Empty);
          dataset.Add(DicomTag.PerformedProcedureStepEndTime, string.Empty);
-         // get modality from MWL query resault 
-         dataset.Add(DicomTag.Modality, sq.First().GetSingleValueOrDefault(DicomTag.Modality, String.Empty));
+         // get modality from MWL query resault
+         dataset.Add(DicomTag.Modality, procedureStep.GetSingleValueOrDefault(DicomTag.Modality, String.Empty));
          dataset.Add(DicomTag.StudyID, worklistItem.GetSingleValueOrDefault(DicomTag.StudyID, string.Empty));
          dataset.Add(DicomTag.PerformedProtocolCodeSequence, new DicomDataset());
-         dataset.Add(DicomTag.PerformedSeriesSequence, new DicomDataset());
-         // I used the studyInstanceUID as the effectedinstamceUid, this id will be needed for the N-SET also
-         DicomUID effectedinstamceUid = new DicomUID(studyInstanceUID, "effectedinstamceUid", DicomUidType.SOPInstance);// = new DicomDataset();
 
-         var dicomStart = new DicomNCreateRequest(DicomUID.ModalityPerformedProcedureStepSOPClass, effectedinstamceUid)
+         // create an unique UID as the effectedinstamceUid, this id will be needed for the N-SET also
+         DicomUID effectedinstamceUid = DicomUID.Generate("effectedinstamceUid");
+         var dicomStartRequest = new DicomNCreateRequest(DicomUID.ModalityPerformedProcedureStepSOPClass, effectedinstamceUid)
          {
             Dataset = dataset
          };
@@ -138,7 +184,7 @@ namespace Worklist_SCU
          string responseStatus = string.Empty;
          string responseMessage = string.Empty;
 
-         dicomStart.OnResponseReceived += (req, response) =>
+         dicomStartRequest.OnResponseReceived += (req, response) =>
          {
             if (response != null)
             {
@@ -148,8 +194,8 @@ namespace Worklist_SCU
             }
          };
 
-         client.AddRequest(dicomStart);
-         client.Send(serverIP, serverPort, false, clientAET, serverAET);
+         client.AddRequest(dicomStartRequest);
+         client.SendAsync(serverIP, serverPort, false, clientAET, serverAET).Wait();
 
          return (effectedinstamceUid, responseStatus, responseMessage);
       }

@@ -7,28 +7,33 @@ using System;
 namespace Worklist_SCP
 {
 
-    class Program
-    {
+   public class Program
+   {
 
-        static void Main(string[] args)
-        {
-            // Initialize log manager.
-            LogManager.SetImplementation(ConsoleLogManager.Instance);
+      protected Program()
+      {
+      }
 
-            var port = args != null && args.Length > 0 && int.TryParse(args[0], out int tmp) ? tmp : 8005;
 
-            Console.WriteLine($"Starting QR SCP server with AET: QRSCP on port {port}");
+      static void Main(string[] args)
+      {
+         // Initialize log manager.
+         LogManager.SetImplementation(ConsoleLogManager.Instance);
 
-            WorklistServer.Start(port, "QRSCP");
+         var port = args != null && args.Length > 0 && int.TryParse(args[0], out int tmp) ? tmp : 8005;
 
-            Console.WriteLine("Press any key to stop the service");
+         Console.WriteLine($"Starting QR SCP server with AET: QRSCP on port {port}");
 
-            Console.Read();
+         WorklistServer.Start(port, "QRSCP");
 
-            Console.WriteLine("Stopping QR service");
+         Console.WriteLine("Press any key to stop the service");
 
-            WorklistServer.Stop();
-        }
+         Console.Read();
 
-    }
+         Console.WriteLine("Stopping QR service");
+
+         WorklistServer.Stop();
+      }
+
+   }
 }
