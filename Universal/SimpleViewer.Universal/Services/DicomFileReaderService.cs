@@ -1,20 +1,18 @@
-﻿// Copyright (c) 2012-2016 fo-dicom contributors.
+﻿// Copyright (c) 2012-2018 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
+
+using Dicom;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Windows.Storage.Pickers;
 
 namespace SimpleViewer.Universal.Services
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Immutable;
-    using System.IO;
-    using System.Linq;
-    using System.Threading.Tasks;
 
-    using Windows.Storage.Pickers;
-
-    using Dicom;
-
-    public class DicomFileReaderService : IDicomFileReaderService
+   public class DicomFileReaderService : IDicomFileReaderService
     {
         public async Task<IList<DicomFile>> GetFilesAsync()
         {

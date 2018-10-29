@@ -1,20 +1,17 @@
-﻿// Copyright (c) 2012-2016 fo-dicom contributors.
+﻿// Copyright (c) 2012-2018 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
-using Windows.UI.Xaml;
+using Caliburn.Micro;
+using SimpleViewer.Universal.Services;
+using SimpleViewer.Universal.ViewModels;
+using System;
+using System.Collections.Generic;
+using Windows.ApplicationModel.Activation;
 
 namespace SimpleViewer.Universal
 {
-    using System;
-    using System.Collections.Generic;
-    using Windows.ApplicationModel.Activation;
 
-    using Caliburn.Micro;
-
-    using SimpleViewer.Universal.Services;
-    using SimpleViewer.Universal.ViewModels;
-
-    public sealed partial class App
+   public sealed partial class App
     {
         private WinRTContainer container;
 
