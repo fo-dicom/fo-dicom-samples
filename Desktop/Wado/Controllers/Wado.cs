@@ -101,7 +101,7 @@ namespace Wado.Controllers
             //we do not handle anonymization
             if (anonymize == "yes")
                 return requestMessage.CreateErrorResponse(HttpStatusCode.NotAcceptable,
-                    String.Format("anonymise is not supported on the server", contentType));
+                    string.Format("anonymise is not supported on the server", contentType));
 
             //we extract the content types from contentType value
             string[] contentTypes;
@@ -110,7 +110,7 @@ namespace Wado.Controllers
 
             if (!canParseContentTypeParameter)
                 return requestMessage.CreateErrorResponse(HttpStatusCode.NotAcceptable,
-                    String.Format("contentType parameter (value: {0}) cannot be parsed", contentType));
+                    string.Format("contentType parameter (value: {0}) cannot be parsed", contentType));
 
 
             //8.1.5 The Web Client shall provide list of content types it supports in the "Accept" field of the GET method. The
@@ -128,7 +128,7 @@ namespace Wado.Controllers
             if (!isRequestedContentTypeCompatibleWithAcceptContentHeader)
             {
                 return requestMessage.CreateErrorResponse(HttpStatusCode.NotAcceptable,
-                    String.Format("content type {0} is not compatible with types specified in  Accept Header",
+                    string.Format("content type {0} is not compatible with types specified in  Accept Header",
                         contentType));
             }
 
@@ -146,8 +146,8 @@ namespace Wado.Controllers
                 && !compatibleContentTypesByOrderOfPreference.Contains(AppDicomContentType))
             {
                 return requestMessage.CreateErrorResponse(HttpStatusCode.NotAcceptable,
-                    String.Format("content type(s) {0} cannot be served",
-                        String.Join(" - ", compatibleContentTypesByOrderOfPreference)
+                    string.Format("content type(s) {0} cannot be served",
+                        string.Join(" - ", compatibleContentTypesByOrderOfPreference)
                         ));
             }
 

@@ -210,7 +210,7 @@ namespace QueryRetrieve_SCU
                 if (response.Status == DicomStatus.Pending)
                 {
                     // print the results
-                    Console.WriteLine($"Serie {response.Dataset.GetSingleValue<String>(DicomTag.SeriesDescription)}, {response.Dataset.GetSingleValue<String>(DicomTag.Modality)}, {response.Dataset.GetSingleValue<int>(DicomTag.NumberOfSeriesRelatedInstances)} instances");
+                    Console.WriteLine($"Serie {response.Dataset.GetSingleValue<string>(DicomTag.SeriesDescription)}, {response.Dataset.GetSingleValue<string>(DicomTag.Modality)}, {response.Dataset.GetSingleValue<int>(DicomTag.NumberOfSeriesRelatedInstances)} instances");
                 }
                 if (response.Status == DicomStatus.Success)
                 {

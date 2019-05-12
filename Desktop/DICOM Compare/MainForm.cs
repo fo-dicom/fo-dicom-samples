@@ -27,7 +27,7 @@ namespace Dicom.Compare
 
       private int _level = 0;
 
-      private string _indent = String.Empty;
+      private string _indent = string.Empty;
 
       public MainForm()
       {
@@ -47,7 +47,7 @@ namespace Dicom.Compare
          set
          {
             _level = value;
-            _indent = String.Empty;
+            _indent = string.Empty;
             for (int i = 0; i < Level; i++) _indent += "    ";
          }
       }
@@ -242,18 +242,18 @@ namespace Dicom.Compare
 
             if (d1 == null)
             {
-               AddItem(String.Empty, UInt32.MaxValue, String.Empty, lvFile1, Gray);
-               AddItem(GetTagName(DicomTag.Item), UInt32.MaxValue, String.Empty, lvFile2, Green);
+               AddItem(string.Empty, uint.MaxValue, string.Empty, lvFile1, Gray);
+               AddItem(GetTagName(DicomTag.Item), uint.MaxValue, string.Empty, lvFile2, Green);
             }
             else if (d2 == null)
             {
-               AddItem(GetTagName(DicomTag.Item), UInt32.MaxValue, String.Empty, lvFile1, Green);
-               AddItem(String.Empty, UInt32.MaxValue, String.Empty, lvFile2, Gray);
+               AddItem(GetTagName(DicomTag.Item), uint.MaxValue, string.Empty, lvFile1, Green);
+               AddItem(string.Empty, uint.MaxValue, string.Empty, lvFile2, Gray);
             }
             else
             {
-               AddItem(GetTagName(DicomTag.Item), UInt32.MaxValue, String.Empty, lvFile1, None);
-               AddItem(GetTagName(DicomTag.Item), UInt32.MaxValue, String.Empty, lvFile2, None);
+               AddItem(GetTagName(DicomTag.Item), uint.MaxValue, string.Empty, lvFile1, None);
+               AddItem(GetTagName(DicomTag.Item), uint.MaxValue, string.Empty, lvFile2, None);
             }
 
             Level++;
@@ -307,11 +307,11 @@ namespace Dicom.Compare
 
          if (s1 == null)
          {
-            AddItem(String.Empty, UInt32.MaxValue, String.Empty, lvFile1, Gray);
+            AddItem(string.Empty, uint.MaxValue, string.Empty, lvFile1, Gray);
             AddItem(
                 _indent + "Offset Table",
                 (uint)s2.OffsetTable.Count * 4,
-                String.Format("@entries={0}", s2.OffsetTable.Count),
+                string.Format("@entries={0}", s2.OffsetTable.Count),
                 lvFile2,
                 pixel ? Yellow : Red);
          }
@@ -320,10 +320,10 @@ namespace Dicom.Compare
             AddItem(
                 _indent + "Offset Table",
                 (uint)s1.OffsetTable.Count * 4,
-                String.Format("@entries={0}", s1.OffsetTable.Count),
+                string.Format("@entries={0}", s1.OffsetTable.Count),
                 lvFile1,
                 pixel ? Yellow : Red);
-            AddItem(String.Empty, UInt32.MaxValue, String.Empty, lvFile2, Gray);
+            AddItem(string.Empty, uint.MaxValue, string.Empty, lvFile2, Gray);
          }
          else
          {
@@ -343,13 +343,13 @@ namespace Dicom.Compare
             AddItem(
                 _indent + "Offset Table",
                 (uint)s2.OffsetTable.Count * 4,
-                String.Format("@entries={0}", s1.OffsetTable.Count),
+                string.Format("@entries={0}", s1.OffsetTable.Count),
                 lvFile1,
                 pixel ? Yellow : c);
             AddItem(
                 _indent + "Offset Table",
                 (uint)s2.OffsetTable.Count * 4,
-                String.Format("@entries={0}", s2.OffsetTable.Count),
+                string.Format("@entries={0}", s2.OffsetTable.Count),
                 lvFile2,
                 pixel ? Yellow : c);
          }
@@ -370,14 +370,14 @@ namespace Dicom.Compare
 
             if (b1 == null)
             {
-               AddItem(String.Empty, UInt32.MaxValue, String.Empty, lvFile1, Gray);
-               AddItem(name, b2.Size, String.Empty, lvFile2, pixel ? Yellow : Red);
+               AddItem(string.Empty, uint.MaxValue, string.Empty, lvFile1, Gray);
+               AddItem(name, (uint)b2.Size, string.Empty, lvFile2, pixel ? Yellow : Red);
                continue;
             }
             else if (b2 == null)
             {
-               AddItem(name, b1.Size, String.Empty, lvFile1, pixel ? Yellow : Red);
-               AddItem(String.Empty, UInt32.MaxValue, String.Empty, lvFile2, Gray);
+               AddItem(name, (uint)b1.Size, string.Empty, lvFile1, pixel ? Yellow : Red);
+               AddItem(string.Empty, uint.MaxValue, string.Empty, lvFile2, Gray);
                continue;
             }
 
@@ -385,8 +385,8 @@ namespace Dicom.Compare
             if (pixel) c = Yellow;
             else if (!Compare(b1.Data, b2.Data)) c = Red;
 
-            AddItem(name, b1.Size, String.Empty, lvFile1, c);
-            AddItem(name, b2.Size, String.Empty, lvFile2, c);
+            AddItem(name, (uint)b1.Size, string.Empty, lvFile1, c);
+            AddItem(name, (uint)b2.Size, string.Empty, lvFile2, c);
          }
 
          Level--;
@@ -394,14 +394,14 @@ namespace Dicom.Compare
 
       private string GetTagName(DicomTag t)
       {
-         return String.Format("{0}{1}  {2}", _indent, t.ToString().ToUpper(), t.DictionaryEntry.Name);
+         return string.Format("{0}{1}  {2}", _indent, t.ToString().ToUpper(), t.DictionaryEntry.Name);
       }
 
       private void AddItem(string t, uint l, string v, ListView lv, Color c)
       {
          var lvi = lv.Items.Add(t);
-         lvi.SubItems.Add(!String.IsNullOrEmpty(t) ? "--" : String.Empty);
-         if (l == UInt32.MaxValue) lvi.SubItems.Add(!String.IsNullOrEmpty(t) ? "-" : String.Empty);
+         lvi.SubItems.Add(!string.IsNullOrEmpty(t) ? "--" : string.Empty);
+         if (l == uint.MaxValue) lvi.SubItems.Add(!string.IsNullOrEmpty(t) ? "-" : string.Empty);
          else lvi.SubItems.Add(l.ToString());
          lvi.SubItems.Add(v);
          lvi.UseItemStyleForSubItems = true;
@@ -422,22 +422,22 @@ namespace Dicom.Compare
                var e = i as DicomElement;
                lvi.SubItems.Add(e.Length.ToString());
                string value = "<large value not displayed>";
-               if (e.Length <= 2048) value = String.Join("\\", e.Get<string[]>());
+               if (e.Length <= 2048) value = string.Join("\\", e.Get<string[]>());
                lvi.SubItems.Add(value);
             }
             else
             {
                lvi.SubItems.Add("-");
-               lvi.SubItems.Add(String.Empty);
+               lvi.SubItems.Add(string.Empty);
             }
             lvi.Tag = i;
          }
          else
          {
-            lvi = lv.Items.Add(String.Empty);
-            lvi.SubItems.Add(String.Empty);
-            lvi.SubItems.Add(String.Empty);
-            lvi.SubItems.Add(String.Empty);
+            lvi = lv.Items.Add(string.Empty);
+            lvi.SubItems.Add(string.Empty);
+            lvi.SubItems.Add(string.Empty);
+            lvi.SubItems.Add(string.Empty);
          }
 
          lvi.UseItemStyleForSubItems = true;

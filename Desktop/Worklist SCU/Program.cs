@@ -64,7 +64,7 @@ namespace Worklist_SCU
          dataset.Add(DicomTag.PerformedProcedureStepEndDate, DateTime.Now);
          dataset.Add(DicomTag.PerformedProcedureStepEndTime, DateTime.Now);
          dataset.Add(DicomTag.PerformedProcedureStepStatus, "COMPLETED");
-         dataset.Add(DicomTag.PerformedProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
+         dataset.Add(DicomTag.PerformedProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, string.Empty));
          dataset.Add(DicomTag.PerformedProcedureTypeDescription, string.Empty);
 
          dataset.Add(DicomTag.PerformedProtocolCodeSequence, new DicomDataset());
@@ -140,23 +140,23 @@ namespace Worklist_SCU
          // set Attribute Sequence data 
          content.Add(DicomTag.StudyInstanceUID, studyInstanceUID);
          content.Add(DicomTag.ReferencedStudySequence, new DicomDataset());
-         content.Add(DicomTag.AccessionNumber, worklistItem.GetSingleValueOrDefault(DicomTag.AccessionNumber, String.Empty));
-         content.Add(DicomTag.RequestedProcedureID, worklistItem.GetSingleValueOrDefault(DicomTag.RequestedProcedureID, String.Empty));
-         content.Add(DicomTag.RequestedProcedureDescription, worklistItem.GetSingleValueOrDefault(DicomTag.RequestedProcedureDescription, String.Empty));
-         content.Add(DicomTag.ScheduledProcedureStepID, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
-         content.Add(DicomTag.ScheduledProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepDescription, String.Empty));
+         content.Add(DicomTag.AccessionNumber, worklistItem.GetSingleValueOrDefault(DicomTag.AccessionNumber, string.Empty));
+         content.Add(DicomTag.RequestedProcedureID, worklistItem.GetSingleValueOrDefault(DicomTag.RequestedProcedureID, string.Empty));
+         content.Add(DicomTag.RequestedProcedureDescription, worklistItem.GetSingleValueOrDefault(DicomTag.RequestedProcedureDescription, string.Empty));
+         content.Add(DicomTag.ScheduledProcedureStepID, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, string.Empty));
+         content.Add(DicomTag.ScheduledProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepDescription, string.Empty));
          content.Add(DicomTag.ScheduledProtocolCodeSequence, new DicomDataset());
 
          DicomSequence attr_Sequence = new DicomSequence(DicomTag.ScheduledStepAttributesSequence, content);//"Scheduled Step Attribute Sequence"
          dataset.Add(attr_Sequence);
 
-         dataset.Add(DicomTag.PatientName, worklistItem.GetSingleValueOrDefault(DicomTag.PatientName, String.Empty));
-         dataset.Add(DicomTag.PatientID, worklistItem.GetSingleValueOrDefault(DicomTag.PatientID, String.Empty));
-         dataset.Add(DicomTag.PatientBirthDate, worklistItem.GetSingleValueOrDefault(DicomTag.PatientBirthDate, String.Empty));
-         dataset.Add(DicomTag.PatientSex, worklistItem.GetSingleValueOrDefault(DicomTag.PatientSex, String.Empty));
+         dataset.Add(DicomTag.PatientName, worklistItem.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty));
+         dataset.Add(DicomTag.PatientID, worklistItem.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty));
+         dataset.Add(DicomTag.PatientBirthDate, worklistItem.GetSingleValueOrDefault(DicomTag.PatientBirthDate, string.Empty));
+         dataset.Add(DicomTag.PatientSex, worklistItem.GetSingleValueOrDefault(DicomTag.PatientSex, string.Empty));
 
          dataset.Add(DicomTag.ReferencedPatientSequence, new DicomDataset());
-         dataset.Add(DicomTag.PerformedProcedureStepID, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
+         dataset.Add(DicomTag.PerformedProcedureStepID, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, string.Empty));
          dataset.Add(DicomTag.PerformedStationAETitle, PerformedStationAETitle);
          dataset.Add(DicomTag.PerformedStationName, PerformedStationName);
          dataset.Add(DicomTag.PerformedLocation, string.Empty);
@@ -164,13 +164,13 @@ namespace Worklist_SCU
          dataset.Add(DicomTag.PerformedProcedureStepStartTime, DateTime.Now);
          // set status
          dataset.Add(DicomTag.PerformedProcedureStepStatus, "IN PROGRESS");
-         dataset.Add(DicomTag.PerformedProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, String.Empty));
+         dataset.Add(DicomTag.PerformedProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, string.Empty));
          dataset.Add(DicomTag.PerformedProcedureTypeDescription, string.Empty);
 
          dataset.Add(DicomTag.PerformedProcedureStepEndDate, string.Empty);
          dataset.Add(DicomTag.PerformedProcedureStepEndTime, string.Empty);
          // get modality from MWL query resault
-         dataset.Add(DicomTag.Modality, procedureStep.GetSingleValueOrDefault(DicomTag.Modality, String.Empty));
+         dataset.Add(DicomTag.Modality, procedureStep.GetSingleValueOrDefault(DicomTag.Modality, string.Empty));
          dataset.Add(DicomTag.StudyID, worklistItem.GetSingleValueOrDefault(DicomTag.StudyID, string.Empty));
          dataset.Add(DicomTag.PerformedProtocolCodeSequence, new DicomDataset());
 
