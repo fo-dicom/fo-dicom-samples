@@ -596,7 +596,7 @@ namespace Dicom.Printing
                                   printJob.SOPInstanceUID))));
 
                   var response = new DicomNActionResponse(request, DicomStatus.Success);
-                  response.Command.AddOrUpdate(DicomTag.AffectedSOPInstanceUID, printJob.SOPInstanceUID);
+                  response.Command.AddOrUpdate(DicomTag.AffectedSOPInstanceUID, request.SOPInstanceUID);
                   response.Dataset = result;
 
                   return response;
