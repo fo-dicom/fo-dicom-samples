@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Threading;
 
@@ -197,9 +198,9 @@ namespace Dicom.Printing
 
          PrintJobFolder = SOPInstanceUID.UID;
 
-         var receivingFolder = Environment.CurrentDirectory + @"\PrintJobs";
+         var receivingFolder = Path.Combine(Environment.CurrentDirectory, "PrintJobs");
 
-         FullPrintJobFolder = string.Format(@"{0}\{1}", receivingFolder.TrimEnd('\\'), PrintJobFolder);
+         FullPrintJobFolder = Path.Combine(receivingFolder, PrintJobFolder);
 
          FilmBoxFolderList = new List<string>();
       }
@@ -216,7 +217,7 @@ namespace Dicom.Printing
 
             OnStatusUpdate("Preparing films for printing");
 
-            var printJobDir = new System.IO.DirectoryInfo(FullPrintJobFolder);
+            var printJobDir = new DirectoryInfo(FullPrintJobFolder);
             if (!printJobDir.Exists)
             {
                printJobDir.Create();
@@ -230,7 +231,7 @@ namespace Dicom.Printing
                var filmBoxDir = printJobDir.CreateSubdirectory(string.Format("F{0:000000}", i + 1 + filmsCount));
 
                file = new DicomFile(filmBox.FilmSession);
-               file.Save(string.Format(@"{0}\FilmSession.dcm", filmBoxDir.FullName));
+               file.Save(Path.Combine(filmBoxDir.FullName, "FilmSession.dcm"));
 
                FilmBoxFolderList.Add(filmBoxDir.Name);
                filmBox.Save(filmBoxDir.FullName);
@@ -238,9 +239,11 @@ namespace Dicom.Printing
 
             FilmSessionLabel = filmBoxList.First().FilmSession.FilmSessionLabel;
 
-            var thread = new Thread(new ThreadStart(DoPrint));
-            thread.Name = string.Format("PrintJob {0}", SOPInstanceUID.UID);
-            thread.IsBackground = true;
+            var thread = new Thread(new ThreadStart(DoPrint))
+            {
+               Name = $"PrintJob {SOPInstanceUID.UID}",
+               IsBackground = true
+            };
             thread.Start();
          }
          catch (Exception ex)
@@ -264,11 +267,7 @@ namespace Dicom.Printing
             {
                PrinterName = "Microsoft XPS Document Writer",
                PrintToFile = true,
-               PrintFileName =
-                                              string.Format(
-                                                  "{0}\\{1}.xps",
-                                                  FullPrintJobFolder,
-                                                  SOPInstanceUID.UID)
+               PrintFileName = Path.Combine(FullPrintJobFolder, SOPInstanceUID.UID + ".xps")
             };
 
             printDocument = new PrintDocument
@@ -316,9 +315,9 @@ namespace Dicom.Printing
 
       private void OnQueryPageSettings(object sender, QueryPageSettingsEventArgs e)
       {
-         OnStatusUpdate(string.Format("Printing film {0} of {1}", _currentPage + 1, FilmBoxFolderList.Count));
-         var filmBoxFolder = string.Format("{0}\\{1}", FullPrintJobFolder, FilmBoxFolderList[_currentPage]);
-         var filmSession = FilmSession.Load(string.Format("{0}\\FilmSession.dcm", filmBoxFolder));
+         OnStatusUpdate($"Printing film {_currentPage + 1} of {FilmBoxFolderList.Count}");
+         var filmBoxFolder = Path.Combine(FullPrintJobFolder, FilmBoxFolderList[_currentPage]);
+         var filmSession = FilmSession.Load(Path.Combine(filmBoxFolder, "FilmSession.dcm"));
          _currentFilmBox = FilmBox.Load(filmSession, filmBoxFolder);
 
          e.PageSettings.Margins.Left = 25;
@@ -331,7 +330,7 @@ namespace Dicom.Printing
 
       private void DeletePrintFolder()
       {
-         var folderInfo = new System.IO.DirectoryInfo(FullPrintJobFolder);
+         var folderInfo = new DirectoryInfo(FullPrintJobFolder);
          if (folderInfo.Exists)
          {
             folderInfo.Delete(true);

@@ -8,12 +8,13 @@ using Dicom.Printing;
 namespace Print_SCP
 {
 
-    internal class Program
-    {
-        private static void Main(string[] args)
-        {
-            // Initialize log manager.
-            LogManager.SetImplementation(ConsoleLogManager.Instance);
+   internal static class Program
+   {
+
+      private static void Main(string[] args)
+      {
+         // Initialize log manager.
+         LogManager.SetImplementation(ConsoleLogManager.Instance);
 
          //This is a simple DICOM Print SCP implementation with Print Job and Send Event Report Support
          //This sample depends on the Microsoft XPS Document Writer Printer to be installed on the system
@@ -26,16 +27,16 @@ namespace Print_SCP
 
          Console.WriteLine($"Starting print SCP server with AET: PRINTSCP on port {port}");
 
-            PrintService.Start(port, "PRINTSCP");
+         PrintService.Start(port, "PRINTSCP");
 
-            Console.WriteLine("Press any key to stop the service");
+         Console.WriteLine("Press any key to stop the service");
 
-            Console.Read();
+         Console.Read();
 
-            Console.WriteLine("Stopping print service");
+         Console.WriteLine("Stopping print service");
 
-            PrintService.Stop();
+         PrintService.Stop();
 
-        }
-    }
+      }
+   }
 }
