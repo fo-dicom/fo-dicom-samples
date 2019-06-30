@@ -58,7 +58,7 @@ namespace Dicom.Media
             {
                 var dicomFile = Dicom.DicomFile.Open(file.FullName);
 
-                dicomDir.AddFile(dicomFile, String.Format(@"000001\{0}", file.Name));
+                dicomDir.AddFile(dicomFile, string.Format(@"000001\{0}", file.Name));
             }
 
             dicomDir.Save(dicomDirPath);
