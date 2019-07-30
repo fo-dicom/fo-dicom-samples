@@ -3,17 +3,20 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using NLog.Config;
 using NLog.Targets;
 using Dicom;
 using Dicom.Log;
 using Dicom.Network;
+using DicomClient = Dicom.Network.Client.DicomClient;
 
 namespace ConsoleTest
 {
-    internal class Program
+    internal static class Program
     {
-        private static void Main(string[] args)
+
+        private static async Task Main(string[] args)
         {
             try
             {
@@ -30,23 +33,25 @@ namespace ConsoleTest
 
                 var config = new LoggingConfiguration();
 
-                var target = new ColoredConsoleTarget();
-                target.Layout = @"${date:format=HH\:mm\:ss}  ${message}";
+                var target = new ColoredConsoleTarget
+                {
+                    Layout = @"${date:format=HH\:mm\:ss}  ${message}"
+                };
                 config.AddTarget("Console", target);
                 config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Debug, target));
 
                 NLog.LogManager.Configuration = config;
 
-                var client = new DicomClient();
+                var client = new DicomClient("127.0.0.1", 11112, false, "SCU", "STORESCP");
                 client.NegotiateAsyncOps();
                 for (int i = 0; i < 10; i++)
                 {
-                    client.AddRequest(new DicomCEchoRequest());
+                    await client.AddRequestAsync(new DicomCEchoRequest());
                 }
 
-                client.AddRequest(new DicomCStoreRequest(@"test1.dcm"));
-                client.AddRequest(new DicomCStoreRequest(@"test2.dcm"));
-                client.Send("127.0.0.1", 11112, false, "SCU", "STORESCP");
+                await client.AddRequestAsync(new DicomCStoreRequest(@"test1.dcm"));
+                await client.AddRequestAsync(new DicomCStoreRequest(@"test2.dcm"));
+                await client.SendAsync();
 
                 foreach (DicomPresentationContext ctr in client.AdditionalPresentationContexts)
                 {
@@ -134,6 +139,8 @@ namespace ConsoleTest
             {
                 if (!(e is DicomException)) Console.WriteLine(e.ToString());
             }
+
+            Console.ReadLine();
         }
     }
 }
