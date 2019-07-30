@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Dicom.Media
 {
-    internal class Program
+    internal static class Program
     {
         private static void Main(string[] args)
         {
@@ -40,10 +40,6 @@ namespace Dicom.Media
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-            }
-            finally
-            {
-
             }
         }
 
