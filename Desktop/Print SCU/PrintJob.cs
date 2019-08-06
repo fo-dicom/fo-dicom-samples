@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using System.Threading.Tasks;
 using Dicom;
 using Dicom.Imaging;
 using Dicom.IO;
 using Dicom.Network;
 using Dicom.Printing;
+using DicomClient = Dicom.Network.Client.DicomClient;
+
 
 namespace Print_SCU
 {
@@ -74,13 +76,13 @@ namespace Print_SCU
             }
             if (index < 0 || index > _currentFilmBox.BasicImageBoxes.Count)
             {
-                throw new ArgumentOutOfRangeException("Image box index out of range");
+                throw new ArgumentOutOfRangeException(nameof(index), "Image box index out of range");
             }
 
             if (bitmap.PixelFormat != PixelFormat.Format24bppRgb && bitmap.PixelFormat != PixelFormat.Format32bppArgb
                 && bitmap.PixelFormat != PixelFormat.Format32bppRgb)
             {
-                throw new ArgumentException("Not supported bitmap format");
+                throw new ArgumentException("Not supported bitmap format", nameof(bitmap));
             }
 
             var dataset = new DicomDataset();
@@ -115,13 +117,13 @@ namespace Print_SCU
             }
             if (index < 0 || index > _currentFilmBox.BasicImageBoxes.Count)
             {
-                throw new ArgumentOutOfRangeException("Image box index out of range");
+                throw new ArgumentOutOfRangeException(nameof(index), "Image box index out of range");
             }
 
             if (bitmap.PixelFormat != PixelFormat.Format24bppRgb && bitmap.PixelFormat != PixelFormat.Format32bppArgb
                 && bitmap.PixelFormat != PixelFormat.Format32bppRgb)
             {
-                throw new ArgumentException("Not supported bitmap format");
+                throw new ArgumentException("Not supported bitmap format", nameof(bitmap));
             }
 
             var dataset = new DicomDataset();
@@ -153,11 +155,11 @@ namespace Print_SCU
             _currentFilmBox = null;
         }
 
-        public void Print()
+        public async Task Print()
         {
-            var dicomClient = new DicomClient();
+            var dicomClient = new DicomClient(RemoteAddress, RemotePort, false, CallingAE, CalledAE);
 
-            dicomClient.AddRequest(
+            await dicomClient.AddRequestAsync(
                 new DicomNCreateRequest(FilmSession.SOPClassUID, FilmSession.SOPInstanceUID)
                     {
                         Dataset = FilmSession
@@ -188,20 +190,20 @@ namespace Print_SCU
                             }
                         }
                     };
-                dicomClient.AddRequest(filmBoxRequest);
+                await dicomClient.AddRequestAsync(filmBoxRequest);
 
                 foreach (var image in filmbox.BasicImageBoxes)
                 {
                     var req = new DicomNSetRequest(image.SOPClassUID, image.SOPInstanceUID) { Dataset = image };
 
                     imageBoxRequests.Add(req);
-                    dicomClient.AddRequest(req);
+                    await dicomClient.AddRequestAsync(req);
                 }
             }
 
-            dicomClient.AddRequest(new DicomNActionRequest(FilmSession.SOPClassUID, FilmSession.SOPInstanceUID, 0x0001));
+            await dicomClient.AddRequestAsync(new DicomNActionRequest(FilmSession.SOPClassUID, FilmSession.SOPInstanceUID, 0x0001));
 
-            dicomClient.Send(RemoteAddress, RemotePort, false, CallingAE, CalledAE);
+            await dicomClient.SendAsync();
         }
 
 

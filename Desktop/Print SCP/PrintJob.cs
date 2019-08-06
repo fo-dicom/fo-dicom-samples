@@ -41,6 +41,7 @@ namespace Dicom.Printing
       Failure = 4
    }
 
+
    public class PrintJob : DicomDataset
    {
       #region Properties and Attributes
@@ -92,7 +93,7 @@ namespace Dicom.Printing
       public string ExecutionStatus
       {
          get => GetSingleValueOrDefault(DicomTag.ExecutionStatus, string.Empty);
-         set => AddOrUpdate(DicomTag.ExecutionStatus, value);
+         set => AddOrUpdate(DicomTag.ExecutionStatus, value.ToUpperInvariant());
       }
 
       /// <summary>
@@ -101,7 +102,7 @@ namespace Dicom.Printing
       public string ExecutionStatusInfo
       {
          get => GetSingleValueOrDefault(DicomTag.ExecutionStatusInfo, string.Empty);
-         set => AddOrUpdate(DicomTag.ExecutionStatusInfo, value);
+         set => AddOrUpdate(DicomTag.ExecutionStatusInfo, value.ToUpperInvariant());
       }
 
       /// <summary>
@@ -215,7 +216,7 @@ namespace Dicom.Printing
          {
             Status = PrintJobStatus.Pending;
 
-            OnStatusUpdate("Preparing films for printing");
+            OnStatusUpdate("QUEUED");
 
             var printJobDir = new DirectoryInfo(FullPrintJobFolder);
             if (!printJobDir.Exists)
@@ -250,7 +251,7 @@ namespace Dicom.Printing
          {
             Error = ex;
             Status = PrintJobStatus.Failure;
-            OnStatusUpdate("Print failed");
+            OnStatusUpdate("UNKNOWN"); // The exception may be analyzed and a more proper code as defined in "Table C.13.9.1-1. Defined Terms for Printer and Execution Status Info" may be used
             DeletePrintFolder();
          }
       }
@@ -261,7 +262,7 @@ namespace Dicom.Printing
          try
          {
             Status = PrintJobStatus.Printing;
-            OnStatusUpdate("Printing Started");
+            OnStatusUpdate("QUEUED");
 
             var printerSettings = new PrinterSettings
             {
@@ -284,12 +285,12 @@ namespace Dicom.Printing
 
             Status = PrintJobStatus.Done;
 
-            OnStatusUpdate("Printing Done");
+            OnStatusUpdate("NORMAL");
          }
          catch (Exception e)
          {
             Status = PrintJobStatus.Failure;
-            OnStatusUpdate($"Printing failed, exception: {e}");
+            OnStatusUpdate("UNKNOWN"); // The exception may be analyzed and a more proper code as defined in "Table C.13.9.1-1. Defined Terms for Printer and Execution Status Info" may be used
          }
          finally
          {
@@ -315,7 +316,7 @@ namespace Dicom.Printing
 
       private void OnQueryPageSettings(object sender, QueryPageSettingsEventArgs e)
       {
-         OnStatusUpdate($"Printing film {_currentPage + 1} of {FilmBoxFolderList.Count}");
+         OnStatusUpdate($"NORMAL");
          var filmBoxFolder = Path.Combine(FullPrintJobFolder, FilmBoxFolderList[_currentPage]);
          var filmSession = FilmSession.Load(Path.Combine(filmBoxFolder, "FilmSession.dcm"));
          _currentFilmBox = FilmBox.Load(filmSession, filmBoxFolder);
@@ -354,11 +355,7 @@ namespace Dicom.Printing
          {
             Log.Error("Print Job {0} Status {1}: {2}", SOPInstanceUID.UID.Split('.').Last(), Status, info);
          }
-         if (StatusUpdate != null)
-         {
-            var args = new StatusUpdateEventArgs((ushort)Status, info, FilmSessionLabel, PrinterName);
-            StatusUpdate(this, args);
-         }
+         StatusUpdate?.Invoke(this, new StatusUpdateEventArgs((ushort)Status, info, FilmSessionLabel, PrinterName));
       }
 
       #endregion

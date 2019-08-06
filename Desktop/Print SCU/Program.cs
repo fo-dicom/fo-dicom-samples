@@ -9,9 +9,9 @@ using Dicom.Log;
 namespace Print_SCU
 {
 
-    internal class Program
+    internal static class Program
     {
-        private static void Main(string[] args)
+        private static async System.Threading.Tasks.Task Main(string[] args)
         {
             // Initialize log manager.
             LogManager.SetImplementation(ConsoleLogManager.Instance);
@@ -47,7 +47,7 @@ namespace Print_SCU
                 printJob.EndFilmBox();
             }
 
-            printJob.Print();
+            await printJob.Print();
 
             stopwatch.Stop();
             Console.WriteLine();
