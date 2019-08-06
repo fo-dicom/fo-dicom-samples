@@ -14,6 +14,9 @@ using QueryRetrieve_SCP.Model;
 using System.Threading;
 using System.Threading.Tasks;
 
+using DicomClient = Dicom.Network.Client.DicomClient;
+using System.Linq;
+
 namespace QueryRetrieve_SCP
 {
 
@@ -245,7 +248,7 @@ namespace QueryRetrieve_SCP
             var destinationIP = "localhost";
 
             IDicomImageFinderService finderService = QRServer.CreateFinderService;
-            List<string> matchingFiles = null;
+            IEnumerable<string> matchingFiles = Enumerable.Empty<string>();
 
             switch (request.Level)
             {
@@ -266,9 +269,9 @@ namespace QueryRetrieve_SCP
                     yield break;
             }
 
-            DicomClient client = new DicomClient();
+            var client = new DicomClient(destinationIP, destinationPort, false, QRServer.AETitle, request.DestinationAE);
             client.NegotiateAsyncOps();
-            int storeTotal = matchingFiles.Count;
+            int storeTotal = matchingFiles.Count();
             int storeDone = 0; // this variable stores the number of instances that have already been sent
             int storeFailure = 0; // this variable stores the number of faulues returned in a OnResponseReceived
             foreach (string file in matchingFiles)
@@ -289,14 +292,11 @@ namespace QueryRetrieve_SCP
                         Logger.Error("Storage of image failed");
                         storeFailure++;
                     }
-                    // SendResponse(new DicomCMoveResponse(request, DicomStatus.Pending) { Remaining = storeTotal - storeDone - storeFailure, Completed = storeDone });
                 };
-                client.AddRequest(storeRequest);
+                client.AddRequestAsync(storeRequest).Wait();
             }
 
-            // client.Send(destinationIP, destinationPort, false, QRServer.AETitle, request.DestinationAE);
-
-            var sendTask = client.SendAsync(destinationIP, destinationPort, false, QRServer.AETitle, request.DestinationAE);
+            var sendTask = client.SendAsync();
 
             while (!sendTask.IsCompleted)
             {
@@ -305,7 +305,7 @@ namespace QueryRetrieve_SCP
                 Thread.Sleep(TimeSpan.FromSeconds(2));
             }
 
-            Logger.Info("..fertig");
+            Logger.Info("..finished");
             yield return new DicomCMoveResponse(request, DicomStatus.Success);
         }
 
@@ -313,7 +313,7 @@ namespace QueryRetrieve_SCP
         public IEnumerable<DicomCGetResponse> OnCGetRequest(DicomCGetRequest request)
         {
             IDicomImageFinderService finderService = QRServer.CreateFinderService;
-            List<string> matchingFiles = null;
+            IEnumerable<string> matchingFiles = Enumerable.Empty<string>();
 
             switch (request.Level)
             {

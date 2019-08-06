@@ -11,7 +11,7 @@ namespace QueryRetrieve_SCP.Model
 {
     public class StupidSlowFinderService : IDicomImageFinderService
     {
-        private static string StoragePath = @".\DICOM";
+        private static readonly string StoragePath = @".\DICOM";
 
 
         public List<string> FindPatientFiles(string PatientName, string PatientId)
@@ -79,13 +79,12 @@ namespace QueryRetrieve_SCP.Model
                     var dcmFile = DicomFile.Open(fileNameToTest);
 
                     var key = level(dcmFile.Dataset);
-                    if (!string.IsNullOrEmpty(key) && !foundKeys.Contains(key))
+                    if (!string.IsNullOrEmpty(key) 
+                        && !foundKeys.Contains(key)
+                        && matches(dcmFile.Dataset))
                     {
-                        if (matches(dcmFile.Dataset))
-                        {
-                            matchingFiles.Add(fileNameToTest);
-                            foundKeys.Add(key);
-                        }
+                        matchingFiles.Add(fileNameToTest);
+                        foundKeys.Add(key);
                     }
                 }
                 catch (Exception)

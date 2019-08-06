@@ -7,30 +7,32 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using DicomClient = Dicom.Network.Client.DicomClient;
 
 
 namespace QueryRetrieve_SCU
 {
-    class Program
+    internal static class Program
     {
 
-        private static string StoragePath = @".\DICOM";
+        private static readonly string StoragePath = @".\DICOM";
         // values of the Query Retrieve Server to test with.
-        private static string QRServerHost = "localhost"; // "www.dicomserver.co.uk";
-        private static int QRServerPort = 8001; // 104;
-        private static string QRServerAET = "QRSCP"; // "STORESCP";
-        private static string AET = "FODICOMSCU";
+        private static readonly string QRServerHost = "localhost"; // "www.dicomserver.co.uk";
+        private static readonly int QRServerPort = 8001; // 104;
+        private static readonly string QRServerAET = "QRSCP"; // "STORESCP";
+        private static readonly string AET = "FODICOMSCU";
 
 
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var client = new DicomClient();
+            var client = new DicomClient(QRServerHost, QRServerPort, false, AET, QRServerAET);
             client.NegotiateAsyncOps();
 
             // Find a list of Studies
 
-            var request = CreateStudyRequestByPatientName("Tester^P*");
+            var request = CreateStudyRequestByPatientName("Traxler^Y*");
 
             var studyUids = new List<string>();
             request.OnResponseReceived += (req, response) =>
@@ -38,8 +40,8 @@ namespace QueryRetrieve_SCU
                 DebugStudyResponse(response);
                 studyUids.Add(response.Dataset?.GetSingleValue<string>(DicomTag.StudyInstanceUID));
             };
-            client.AddRequest(request);
-            client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
+            await client.AddRequestAsync(request);
+            await client.SendAsync();
 
             // find all series from a study that previous was returned
 
@@ -51,18 +53,18 @@ namespace QueryRetrieve_SCU
                 DebugSerieResponse(response);
                 serieUids.Add(response.Dataset?.GetSingleValue<string>(DicomTag.SeriesInstanceUID));
             };
-            client.AddRequest(request);
-            client.SendAsync(QRServerHost, QRServerPort, false, AET, QRServerAET).Wait();
+            await client.AddRequestAsync(request);
+            await client.SendAsync();
 
             // now get all the images of a serie with cGet in the same association
 
-            client = new DicomClient();
+            client = new DicomClient(QRServerHost, QRServerPort, false, AET, QRServerAET);
             var cGetRequest = CreateCGetBySeriesUID(studyUID, serieUids.First());
             client.OnCStoreRequest += (DicomCStoreRequest req) =>
             {
                 Console.WriteLine(DateTime.Now.ToString() + " recived");
                 SaveImage(req.Dataset);
-                return new DicomCStoreResponse(req, DicomStatus.Success);
+                return Task.FromResult(new DicomCStoreResponse(req, DicomStatus.Success));
             };
             // the client has to accept storage of the images. We know that the requested images are of SOP class Secondary capture, 
             // so we add the Secondary capture to the additional presentation context
@@ -74,13 +76,13 @@ namespace QueryRetrieve_SCU
                 DicomTransferSyntax.ImplicitVRLittleEndian,
                 DicomTransferSyntax.ImplicitVRBigEndian);
             client.AdditionalPresentationContexts.AddRange(pcs);
-            client.AddRequest(cGetRequest);
-            client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
+            await client.AddRequestAsync(cGetRequest);
+            await client.SendAsync();
 
             // if the images shall be sent to an existing storescp and this storescp is configured on the QR SCP then a CMove could be performed:
 
             // here we want to see how a error case looks like - because the test QR Server does not know the node FODICOMSCP
-            client = new DicomClient();
+            client = new DicomClient(QRServerHost, QRServerPort, false, AET, QRServerAET);
             var cMoveRequest = CreateCMoveByStudyUID("STORESCP", studyUID);
             bool? moveSuccessfully = null;
             cMoveRequest.OnResponseReceived += (DicomCMoveRequest requ, DicomCMoveResponse response) =>
@@ -101,8 +103,8 @@ namespace QueryRetrieve_SCU
                 }
                 Console.WriteLine(response.Status);
             };
-            client.AddRequest(cMoveRequest);
-            client.Send(QRServerHost, QRServerPort, false, AET, QRServerAET);
+            await client.AddRequestAsync(cMoveRequest);
+            await client.SendAsync();
 
             if (moveSuccessfully.GetValueOrDefault(false))
             {
@@ -218,7 +220,9 @@ namespace QueryRetrieve_SCU
                 }
             }
             catch (Exception)
-            { }
+            {
+                // ignore errors
+            }
         }
 
 

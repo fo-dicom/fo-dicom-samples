@@ -287,7 +287,7 @@ namespace Dicom.Printing
 
             OnStatusUpdate("NORMAL");
          }
-         catch (Exception e)
+         catch (Exception)
          {
             Status = PrintJobStatus.Failure;
             OnStatusUpdate("UNKNOWN"); // The exception may be analyzed and a more proper code as defined in "Table C.13.9.1-1. Defined Terms for Printer and Execution Status Info" may be used

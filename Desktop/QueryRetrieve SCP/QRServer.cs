@@ -7,7 +7,7 @@ using QueryRetrieve_SCP.Model;
 namespace QueryRetrieve_SCP
 {
 
-    public class QRServer
+    public static class QRServer
     {
 
         private static IDicomServer _server;

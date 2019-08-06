@@ -6,7 +6,7 @@ using System;
 
 namespace QueryRetrieve_SCP
 {
-    class Program
+    internal static class Program
     {
         static void Main(string[] args)
         {
