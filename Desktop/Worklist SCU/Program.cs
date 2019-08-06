@@ -7,6 +7,9 @@ using Dicom.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using DicomClient = Dicom.Network.Client.DicomClient;
+
 
 namespace Worklist_SCU
 {
@@ -20,7 +23,7 @@ namespace Worklist_SCU
       {
       }
 
-      public static void Main(string[] args)
+      public static async Task Main(string[] args)
       {
          // Initialize log manager.
          LogManager.SetImplementation(ConsoleLogManager.Instance);
@@ -32,26 +35,26 @@ namespace Worklist_SCU
          var clientAET = "ModalityAET";
 
          // query all worklist items from worklist server
-         var worklistItems = GetAllItemsFromWorklist(serverIP, serverPort, serverAET, clientAET);
+         var worklistItems = await GetAllItemsFromWorklistAsync(serverIP, serverPort, serverAET, clientAET);
 
          Console.WriteLine($"received {worklistItems.Count} worklist items.");
 
          // take the first result and set it to in-progress via mpps
          var worklistItem = worklistItems.First();
-         var (affectedInstanceUid, responseStatus, responseMessage) = SendMppsInProgress(serverIP, serverPort, serverAET, clientAET, worklistItem);
+         var (affectedInstanceUid, responseStatus, responseMessage) = await SendMppsInProgressAsync(serverIP, serverPort, serverAET, clientAET, worklistItem);
          Console.WriteLine($"in progress sent with response {responseStatus} ({responseMessage})");
 
          // then send the compleded
-         var responseCompleted = SendMppsCompleted(serverIP, serverPort, serverAET, clientAET, affectedInstanceUid, worklistItem);
+         var responseCompleted = await SendMppsCompletedAsync(serverIP, serverPort, serverAET, clientAET, affectedInstanceUid, worklistItem);
          Console.WriteLine($"completed sent with response {responseCompleted.responseStatus} ({responseCompleted.responseMessage})");
 
          Console.ReadLine();
       }
 
 
-      private static (string responseStatus, string responseMessage) SendMppsCompleted(string serverIP, int serverPort, string serverAET, string clientAET, DicomUID affectedInstanceUid, DicomDataset worklistItem)
+      private static async Task<(string responseStatus, string responseMessage)> SendMppsCompletedAsync(string serverIP, int serverPort, string serverAET, string clientAET, DicomUID affectedInstanceUid, DicomDataset worklistItem)
       {
-         var client = new DicomClient();
+         var client = new DicomClient(serverIP, serverPort, false, clientAET, serverAET);
          var dataset = new DicomDataset();
 
          DicomSequence procedureStepSq = worklistItem.GetSequence(DicomTag.ScheduledProcedureStepSequence);
@@ -115,16 +118,16 @@ namespace Worklist_SCU
             }
          };
 
-         client.AddRequest(dicomFinished);
-         client.SendAsync(serverIP, serverPort, false, clientAET, serverAET).Wait();
+         await client.AddRequestAsync(dicomFinished);
+         await client.SendAsync();
 
          return (responseStatus, responseMessage);
       }
 
 
-      private static (DicomUID affectedInstanceUid, string responseStatus, string responseMessage) SendMppsInProgress(string serverIP, int serverPort, string serverAET, string clientAET, DicomDataset worklistItem)
+      private static async Task<(DicomUID affectedInstanceUid, string responseStatus, string responseMessage)> SendMppsInProgressAsync(string serverIP, int serverPort, string serverAET, string clientAET, DicomDataset worklistItem)
       {
-         var client = new DicomClient();
+         var client = new DicomClient(serverIP, serverPort, false, clientAET, serverAET);
          var dataset = new DicomDataset();
 
          DicomSequence procedureStepSq = worklistItem.GetSequence(DicomTag.ScheduledProcedureStepSequence);
@@ -175,7 +178,7 @@ namespace Worklist_SCU
          dataset.Add(DicomTag.PerformedProtocolCodeSequence, new DicomDataset());
 
          // create an unique UID as the effectedinstamceUid, this id will be needed for the N-SET also
-         DicomUID effectedinstamceUid = DicomUID.Generate("effectedinstamceUid");
+         DicomUID effectedinstamceUid = DicomUID.Generate();
          var dicomStartRequest = new DicomNCreateRequest(DicomUID.ModalityPerformedProcedureStepSOPClass, effectedinstamceUid)
          {
             Dataset = dataset
@@ -194,26 +197,33 @@ namespace Worklist_SCU
             }
          };
 
-         client.AddRequest(dicomStartRequest);
-         client.SendAsync(serverIP, serverPort, false, clientAET, serverAET).Wait();
+         await client.AddRequestAsync(dicomStartRequest);
+         await client.SendAsync();
 
          return (effectedinstamceUid, responseStatus, responseMessage);
       }
 
 
-      private static List<DicomDataset> GetAllItemsFromWorklist(string serverIP, int serverPort, string serverAET, string clientAET)
+      private static async Task<List<DicomDataset>> GetAllItemsFromWorklistAsync(string serverIP, int serverPort, string serverAET, string clientAET)
       {
          var worklistItems = new List<DicomDataset>();
          var cfind = DicomCFindRequest.CreateWorklistQuery(); // no filter, so query all awailable entries
          cfind.OnResponseReceived = (DicomCFindRequest rq, DicomCFindResponse rp) =>
          {
-            Console.WriteLine("Study UID: {0}", rp.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID));
-            worklistItems.Add(rp.Dataset);
+             if (rp.HasDataset)
+             {
+                 Console.WriteLine("Study UID: {0}", rp.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID));
+                 worklistItems.Add(rp.Dataset);
+             }
+             else
+             {
+                 Console.WriteLine(rp.Status.ToString());
+             }
          };
 
-         var client = new DicomClient();
-         client.AddRequest(cfind);
-         client.SendAsync(serverIP, serverPort, false, clientAET, serverAET).GetAwaiter().GetResult();
+         var client = new DicomClient(serverIP, serverPort, false, clientAET, serverAET);
+         await client.AddRequestAsync(cfind);
+         await client.SendAsync();
 
          return worklistItems;
       }

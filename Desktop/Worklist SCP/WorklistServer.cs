@@ -42,6 +42,7 @@ namespace Worklist_SCP
 
       public static void Stop()
       {
+         _itemsLoaderTimer?.Dispose();
          _server.Dispose();
       }
 
