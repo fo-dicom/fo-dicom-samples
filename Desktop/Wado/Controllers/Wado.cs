@@ -100,13 +100,11 @@ namespace Wado.Controllers
 
             //we do not handle anonymization
             if (anonymize == "yes")
-                return requestMessage.CreateErrorResponse(HttpStatusCode.NotAcceptable,
-                    string.Format("anonymise is not supported on the server", contentType));
+                return requestMessage.CreateErrorResponse(HttpStatusCode.NotAcceptable, "anonymise is not supported on the server");
 
             //we extract the content types from contentType value
-            string[] contentTypes;
             bool canParseContentTypeParameter = ExtractContentTypesFromContentTypeParameter(contentType,
-                out contentTypes);
+                out string[] contentTypes);
 
             if (!canParseContentTypeParameter)
                 return requestMessage.CreateErrorResponse(HttpStatusCode.NotAcceptable,
@@ -238,9 +236,10 @@ namespace Wado.Controllers
                 streamContent.Seek(0, SeekOrigin.Begin);
             }
 
-
-            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-            result.Content = new StreamContent(streamContent);
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StreamContent(streamContent)
+            };
             result.Content.Headers.ContentType = header;
             return result;
         }
@@ -253,7 +252,6 @@ namespace Wado.Controllers
         /// <returns></returns>
         private static string PickFinalContentType(string[] compatibleContentTypesByOrderOfPreference, DicomFile dicomFile)
         {
-            string chosenContentType = null;
             int nbFrames = dicomFile.Dataset.GetSingleValue<int>(DicomTag.NumberOfFrames);
 
             //if compatibleContentTypesByOrderOfPreference is null,
@@ -268,6 +266,7 @@ namespace Wado.Controllers
             //not sure if this is how we distinguish multi frame objects?
             bool isMultiFrame = nbFrames > 1;
             bool chooseDefaultValue = compatibleContentTypesByOrderOfPreference == null;
+            string chosenContentType;
             if (chooseDefaultValue)
             {
                 if (isMultiFrame)
@@ -283,7 +282,7 @@ namespace Wado.Controllers
             {
                 //we need to take the compatible one
                 chosenContentType = compatibleContentTypesByOrderOfPreference
-                    .Intersect(new[] {AppDicomContentType, JpegImageContentType})
+                    .Intersect(new[] { AppDicomContentType, JpegImageContentType })
                     .First();
             }
             return chosenContentType;
@@ -353,7 +352,7 @@ namespace Wado.Controllers
 
             bool acceptAllTypesInAcceptHeader = acceptContentTypesHeader.Contains("*/*");
 
-            string[] compatibleContentTypesByOrderOfPreference = null;
+            string[] compatibleContentTypesByOrderOfPreference;
             if (acceptAllTypesInAcceptHeader)
             {
                 compatibleContentTypesByOrderOfPreference = contentTypes;
