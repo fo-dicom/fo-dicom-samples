@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2019 fo-dicom contributors.
+// Copyright (c) 2012-2020 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 namespace Wado.Models
@@ -9,10 +9,8 @@ namespace Wado.Models
     public class TestDicomImageFinderService : IDicomImageFinderService
     {
 
-        public string GetImageByInstanceUid(string instanceUid)
-        {
+        public string GetImageByInstanceUid(string instanceUid) =>
             //always returns the same image ;)
-            return System.Web.Hosting.HostingEnvironment.MapPath(@"~/TestFiles/1.2.840.113564.192168156.2012101911104793780.1003000225002.dcm");
-        }
+            System.Web.Hosting.HostingEnvironment.MapPath(@"~/TestFiles/1.2.840.113564.192168156.2012101911104793780.1003000225002.dcm");
     }
 }

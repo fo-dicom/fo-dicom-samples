@@ -1,21 +1,20 @@
-﻿// Copyright (c) 2012-2019 fo-dicom contributors.
+﻿// Copyright (c) 2012-2020 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
-using Dicom.Network;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Dicom.Log;
-using Dicom;
-using System.Reflection;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using QueryRetrieve_SCP.Model;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Dicom;
+using Dicom.Log;
+using Dicom.Network;
+using QueryRetrieve_SCP.Model;
 using DicomClient = Dicom.Network.Client.DicomClient;
-using System.Linq;
 
 namespace QueryRetrieve_SCP
 {

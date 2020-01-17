@@ -1,14 +1,14 @@
-﻿// Copyright (c) 2012-2019 fo-dicom contributors.
+﻿// Copyright (c) 2012-2020 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using NLog.Config;
-using NLog.Targets;
 using Dicom;
 using Dicom.Log;
 using Dicom.Network;
+using NLog.Config;
+using NLog.Targets;
 using DicomClient = Dicom.Network.Client.DicomClient;
 
 namespace ConsoleTest
@@ -64,7 +64,10 @@ namespace ConsoleTest
                     "fo-dicom-samples");
                 var testDir = Path.Combine(samplesDir, "Test");
 
-                if (!Directory.Exists(testDir)) Directory.CreateDirectory(testDir);
+                if (!Directory.Exists(testDir))
+                {
+                    Directory.CreateDirectory(testDir);
+                }
 
                 //var img = new DicomImage(samplesDir + @"\ClearCanvas\CRStudy\1.3.51.5145.5142.20010109.1105627.1.0.1.dcm");
                 //img.RenderImage().Save(testDir + @"\test.jpg");
@@ -137,7 +140,10 @@ namespace ConsoleTest
             }
             catch (Exception e)
             {
-                if (!(e is DicomException)) Console.WriteLine(e.ToString());
+                if (!(e is DicomException))
+                {
+                    Console.WriteLine(e.ToString());
+                }
             }
 
             Console.ReadLine();

@@ -1,23 +1,22 @@
-﻿// Copyright (c) 2012-2019 fo-dicom contributors.
+﻿// Copyright (c) 2012-2020 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
-using Dicom;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using Dicom;
 
 namespace QueryRetrieve_SCP.Model
 {
     public class StupidSlowFinderService : IDicomImageFinderService
     {
-        private static readonly string StoragePath = @".\DICOM";
+        private static readonly string _storagePath = @".\DICOM";
 
 
-        public List<string> FindPatientFiles(string PatientName, string PatientId)
-        {
+        public List<string> FindPatientFiles(string PatientName, string PatientId) =>
             // usually here a SQL statement is built to query a Patient-table
-            return SearchInFilesystem(
+            SearchInFilesystem(
                 dcmFile => dcmFile.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty),
                 dcmFile =>
                 {
@@ -26,13 +25,11 @@ namespace QueryRetrieve_SCP.Model
                     matches &= MatchFilter(PatientId, dcmFile.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty));
                     return matches;
                 });
-        }
 
 
-        public List<string> FindStudyFiles(string PatientName, string PatientId, string AccessionNbr, string StudyUID)
-        {
+        public List<string> FindStudyFiles(string PatientName, string PatientId, string AccessionNbr, string StudyUID) =>
             // usually here a SQL statement is built to query a Study-table
-            return SearchInFilesystem(
+            SearchInFilesystem(
                 dcmFile => dcmFile.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty),
                 dcmFile =>
                 {
@@ -43,13 +40,11 @@ namespace QueryRetrieve_SCP.Model
                     matches &= MatchFilter(StudyUID, dcmFile.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty));
                     return matches;
                 });
-        }
 
 
-        public List<string> FindSeriesFiles(string PatientName, string PatientId, string AccessionNbr, string StudyUID, string SeriesUID, string Modality)
-        {
+        public List<string> FindSeriesFiles(string PatientName, string PatientId, string AccessionNbr, string StudyUID, string SeriesUID, string Modality) =>
             // usually here a SQL statement is built to query a Series-table
-            return SearchInFilesystem(
+            SearchInFilesystem(
                 dcmFile => dcmFile.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty),
                 dcmFile =>
                 {
@@ -62,12 +57,11 @@ namespace QueryRetrieve_SCP.Model
                     matches &= MatchFilter(Modality, dcmFile.GetSingleValueOrDefault(DicomTag.Modality, string.Empty));
                     return matches;
                 });
-        }
 
 
         private List<string> SearchInFilesystem(Func<DicomDataset, string> level, Func<DicomDataset, bool> matches)
         {
-            string dicomRootDirectory = StoragePath;
+            string dicomRootDirectory = _storagePath;
             var allFilesOnHarddisk = Directory.GetFiles(dicomRootDirectory, "*.dcm", SearchOption.AllDirectories);
             var matchingFiles = new List<string>(); // holds the file matching the criteria. one representative file per key
             var foundKeys = new List<string>(); // holds the list of keys that have already been found so that only one file per key is returned
@@ -99,7 +93,7 @@ namespace QueryRetrieve_SCP.Model
         public List<string> FindFilesByUID(string PatientId, string StudyUID, string SeriesUID)
         {
             // normally here a SQL query is constructed. But this implementation searches in file system
-            string dicomRootDirectory = StoragePath;
+            string dicomRootDirectory = _storagePath;
             var allFilesOnHarddisk = Directory.GetFiles(dicomRootDirectory, "*.dcm", SearchOption.AllDirectories);
             var matchingFiles = new List<string>();
 

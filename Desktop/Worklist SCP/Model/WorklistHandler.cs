@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2019 fo-dicom contributors.
+﻿// Copyright (c) 2012-2020 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using Dicom;
@@ -142,9 +142,11 @@ namespace Worklist_SCP.Model
         internal static IQueryable<WorklistItem> AddNameCondition(IQueryable<WorklistItem> exams, string dicomName)
         {
             if (string.IsNullOrEmpty(dicomName) || dicomName == "*")
+            {
                 return exams;
+            }
 
-            DicomPersonName personName = new DicomPersonName(DicomTag.PatientName, dicomName);
+            var personName = new DicomPersonName(DicomTag.PatientName, dicomName);
             if (dicomName.Contains("*"))
             {
                 var firstNameRegex = new Regex("^" + Regex.Escape(personName.First).Replace("\\*", ".*") + "$");
@@ -152,7 +154,9 @@ namespace Worklist_SCP.Model
                 exams = exams.Where(x => firstNameRegex.IsMatch(x.Forename) || lastNameRegex.IsMatch(x.Surname));
             }
             else
+            {
                 exams = exams.Where(x => (x.Forename.Equals(personName.First) && x.Surname.Equals(personName.Last)));
+            }
 
             return exams;
         }
@@ -174,7 +178,11 @@ namespace Worklist_SCP.Model
             // Only send items which have been requested
             if (request.Contains(tag))
             {
-                if (value == null) value = default(T);
+                if (value == null)
+                {
+                    value = default;
+                }
+
                 result.AddOrUpdate(tag, value);
             }
         }

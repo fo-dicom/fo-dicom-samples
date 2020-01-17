@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2019 fo-dicom contributors.
+﻿// Copyright (c) 2012-2020 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -14,26 +14,26 @@ namespace Dicom.CStoreSCU
     internal static class Program
     {
 
-        private static string StoreServerHost = "www.dicomserver.co.uk";
-        private static int StoreServerPort = 11112;
-        private static readonly string StoreServerAET = "STORESCP";
-        private static readonly string AET = "FODICOMSCU";
+        private static string _storeServerHost = "www.dicomserver.co.uk";
+        private static int _storeServerPort = 11112;
+        private static readonly string _storeServerAET = "STORESCP";
+        private static readonly string _aet = "FODICOMSCU";
 
         static async Task Main(string[] args)
         {
             var storeMore = "";
 
-            StoreServerHost = GetServerHost();
-            StoreServerPort = GetServerPort();
+            _storeServerHost = GetServerHost();
+            _storeServerPort = GetServerPort();
 
             Console.WriteLine("***************************************************");
-            Console.WriteLine("Server AE Title: " + StoreServerAET);
-            Console.WriteLine("Server Host Address: " + StoreServerHost);
-            Console.WriteLine("Server Port: " + StoreServerPort);
-            Console.WriteLine("Client AE Title: " + AET);
+            Console.WriteLine("Server AE Title: " + _storeServerAET);
+            Console.WriteLine("Server Host Address: " + _storeServerHost);
+            Console.WriteLine("Server Port: " + _storeServerPort);
+            Console.WriteLine("Client AE Title: " + _aet);
             Console.WriteLine("***************************************************");
 
-            var client = new DicomClient(StoreServerHost, StoreServerPort, false, AET, StoreServerAET);
+            var client = new DicomClient(_storeServerHost, _storeServerPort, false, _aet, _storeServerAET);
             client.NegotiateAsyncOps();
 
             do
@@ -59,10 +59,7 @@ namespace Dicom.CStoreSCU
 
                     var request = new DicomCStoreRequest(dicomFile);
 
-                    request.OnResponseReceived += (req, response) =>
-                    {
-                        Console.WriteLine("C-Store Response Received, Status: " + response.Status);
-                    };
+                    request.OnResponseReceived += (req, response) => Console.WriteLine("C-Store Response Received, Status: " + response.Status);
 
                     await client.AddRequestAsync(request);
                     await client.SendAsync();
@@ -92,7 +89,7 @@ namespace Dicom.CStoreSCU
             {
                 Console.WriteLine("Your local IP is: " + localIP);
                 Console.WriteLine("Enter \"1\" to use your local IP Address: " + localIP);
-                Console.WriteLine("Enter \"2\" to use defult: " + StoreServerHost);
+                Console.WriteLine("Enter \"2\" to use defult: " + _storeServerHost);
                 Console.WriteLine("Enter \"3\" to enter custom");
                 Console.Write(">>>");
 
@@ -106,7 +103,7 @@ namespace Dicom.CStoreSCU
                     }
                     else if (input[0] == '2')
                     {
-                        hostAddress = StoreServerHost;
+                        hostAddress = _storeServerHost;
                     }
                     else if (input[0] == '3')
                     {
@@ -125,19 +122,12 @@ namespace Dicom.CStoreSCU
         private static int GetServerPort()
         {
 
-            Console.WriteLine("Enter Server port, or \"Enter\" for default \"" + StoreServerPort + "\":");
+            Console.WriteLine("Enter Server port, or \"Enter\" for default \"" + _storeServerPort + "\":");
             Console.Write(">>>");
 
             var input = Console.ReadLine().Trim();
 
-            if (string.IsNullOrEmpty(input))
-            {
-                return StoreServerPort;
-            }
-            else
-            {
-                return int.Parse(input);
-            }
+            return string.IsNullOrEmpty(input) ? _storeServerPort : int.Parse(input);
         }
 
         public static string GetLocalIPAddress()

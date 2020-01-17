@@ -1,15 +1,15 @@
-﻿// Copyright (c) 2012-2019 fo-dicom contributors.
+﻿// Copyright (c) 2012-2020 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
-using Dicom;
-using Dicom.Network;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Dicom.Log;
-using Worklist_SCP.Model;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Dicom;
+using Dicom.Log;
+using Dicom.Network;
+using Worklist_SCP.Model;
 
 namespace Worklist_SCP
 {
@@ -28,7 +28,11 @@ namespace Worklist_SCP
         {
             get
             {
-                if (_mppsSource == null) _mppsSource = new MppsHandler(Logger);
+                if (_mppsSource == null)
+                {
+                    _mppsSource = new MppsHandler(Logger);
+                }
+
                 return _mppsSource;
             }
         }
