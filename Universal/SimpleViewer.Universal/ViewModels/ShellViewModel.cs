@@ -8,6 +8,7 @@ using SimpleViewer.Universal.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Media;
 
 namespace SimpleViewer.Universal.ViewModels
@@ -117,7 +118,7 @@ namespace SimpleViewer.Universal.ViewModels
          var imageFiles = files.Where(f => f.Dataset.Contains(DicomTag.PixelData)).ToList();
          if (imageFiles.Count > 0)
          {
-            this.images = imageFiles.SelectMany(
+            _images = imageFiles.SelectMany(
                 imageFile =>
                     {
                        try
@@ -134,7 +135,7 @@ namespace SimpleViewer.Universal.ViewModels
                        }
                     }).ToList();
 
-            this.NumberOfImages = this.images.Count;
+            NumberOfImages = _images.Count;
          }
       }
 
