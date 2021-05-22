@@ -66,11 +66,8 @@ namespace Worklist_SCU
             dataset.Add(DicomTag.PerformedProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, string.Empty));
             dataset.Add(DicomTag.PerformedProcedureTypeDescription, string.Empty);
 
-            dataset.Add(DicomTag.PerformedProtocolCodeSequence, new DicomDataset());
-
-            // dose and reports
-            dataset.Add(DicomTag.ImageAndFluoroscopyAreaDoseProduct, 0.0m); // if there has bee sone dose while examination
-            dataset.Add(DicomTag.CommentsOnRadiationDose, string.Empty); // a free text that contains all dose parameters
+            var performedProtocolCodeSequence = new DicomSequence(DicomTag.PerformedProtocolCodeSequence);
+            dataset.Add(performedProtocolCodeSequence);
 
             // images created
             var performedSeriesSq = new DicomSequence(DicomTag.PerformedSeriesSequence);
@@ -81,7 +78,7 @@ namespace Worklist_SCU
             { DicomTag.SeriesDescription, "serie 1" },
             { DicomTag.PerformingPhysicianName, string.Empty },
             { DicomTag.OperatorsName, string.Empty },
-            { DicomTag.ProtocolName, string.Empty },
+            { DicomTag.ProtocolName, "ProtocolName" },
             { DicomTag.SeriesInstanceUID, DicomUID.Generate() }
          };
             var refImagesInSerie = new DicomSequence(DicomTag.ReferencedImageSequence);
@@ -93,6 +90,10 @@ namespace Worklist_SCU
          };
             refImagesInSerie.Items.Add(image);
             serie.Add(refImagesInSerie);
+
+            var referencedNonImageCompositeSOPInstanceSequence = new DicomSequence(DicomTag.ReferencedNonImageCompositeSOPInstanceSequence);
+            serie.Add(referencedNonImageCompositeSOPInstanceSequence);
+
             performedSeriesSq.Items.Add(serie);
             dataset.Add(performedSeriesSq);
 
@@ -138,23 +139,36 @@ namespace Worklist_SCU
 
             // set Attribute Sequence data 
             content.Add(DicomTag.StudyInstanceUID, studyInstanceUID);
-            content.Add(DicomTag.ReferencedStudySequence, new DicomDataset());
+
+            var referencedStudySequence = new DicomSequence(DicomTag.ReferencedStudySequence);
+            content.Add(referencedStudySequence);
+
             content.Add(DicomTag.AccessionNumber, worklistItem.GetSingleValueOrDefault(DicomTag.AccessionNumber, string.Empty));
             content.Add(DicomTag.RequestedProcedureID, worklistItem.GetSingleValueOrDefault(DicomTag.RequestedProcedureID, string.Empty));
             content.Add(DicomTag.RequestedProcedureDescription, worklistItem.GetSingleValueOrDefault(DicomTag.RequestedProcedureDescription, string.Empty));
             content.Add(DicomTag.ScheduledProcedureStepID, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, string.Empty));
             content.Add(DicomTag.ScheduledProcedureStepDescription, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepDescription, string.Empty));
-            content.Add(DicomTag.ScheduledProtocolCodeSequence, new DicomDataset());
+
+            var scheduledProtocolCodeSequence = new DicomSequence(DicomTag.ScheduledProtocolCodeSequence);
+            content.Add(scheduledProtocolCodeSequence);
 
             var attr_Sequence = new DicomSequence(DicomTag.ScheduledStepAttributesSequence, content);//"Scheduled Step Attribute Sequence"
             dataset.Add(attr_Sequence);
+
+            var procedureCodeSequence = new DicomSequence(DicomTag.ProcedureCodeSequence);
+            dataset.Add(procedureCodeSequence);
+
+            var performedSeriesSq = new DicomSequence(DicomTag.PerformedSeriesSequence);
+            dataset.Add(performedSeriesSq);
 
             dataset.Add(DicomTag.PatientName, worklistItem.GetSingleValueOrDefault(DicomTag.PatientName, string.Empty));
             dataset.Add(DicomTag.PatientID, worklistItem.GetSingleValueOrDefault(DicomTag.PatientID, string.Empty));
             dataset.Add(DicomTag.PatientBirthDate, worklistItem.GetSingleValueOrDefault(DicomTag.PatientBirthDate, string.Empty));
             dataset.Add(DicomTag.PatientSex, worklistItem.GetSingleValueOrDefault(DicomTag.PatientSex, string.Empty));
 
-            dataset.Add(DicomTag.ReferencedPatientSequence, new DicomDataset());
+            var referencedPatientSequence = new DicomSequence(DicomTag.ReferencedPatientSequence);
+            dataset.Add(referencedPatientSequence);
+
             dataset.Add(DicomTag.PerformedProcedureStepID, procedureStep.GetSingleValueOrDefault(DicomTag.ScheduledProcedureStepID, string.Empty));
             dataset.Add(DicomTag.PerformedStationAETitle, _performedStationAETitle);
             dataset.Add(DicomTag.PerformedStationName, _performedStationName);
@@ -171,7 +185,9 @@ namespace Worklist_SCU
             // get modality from MWL query resault
             dataset.Add(DicomTag.Modality, procedureStep.GetSingleValueOrDefault(DicomTag.Modality, string.Empty));
             dataset.Add(DicomTag.StudyID, worklistItem.GetSingleValueOrDefault(DicomTag.StudyID, string.Empty));
-            dataset.Add(DicomTag.PerformedProtocolCodeSequence, new DicomDataset());
+
+            var performedProtocolCodeSequence = new DicomSequence(DicomTag.PerformedProtocolCodeSequence);
+            dataset.Add(performedProtocolCodeSequence);
 
             // create an unique UID as the effectedinstamceUid, this id will be needed for the N-SET also
             var effectedinstamceUid = DicomUID.Generate();
