@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -16,9 +16,6 @@ namespace Dicom.Demo.SerilogDemo
 
         private static void Main(string[] args)
         {
-            //SPECIFIC LOGGER VERSUS GLOBAL LOGGER
-            //var serilogManager = UseSpecificSerilogLogger();
-            //ALTERNATE
             var serilogManager = UseGlobalSerilogLogger();
 
             // Initialize log manager.

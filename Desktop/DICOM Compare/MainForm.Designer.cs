@@ -1,4 +1,4 @@
-﻿namespace Dicom.Compare {
+﻿namespace FellowOakDicom.Samples.Compare {
 	partial class MainForm {
 		/// <summary>
 		/// Required designer variable.
@@ -32,13 +32,13 @@
             this.cbIgnoreVR = new System.Windows.Forms.ToolStripMenuItem();
             this.cbIgnoreGroupLengths = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.lvFile1 = new Dicom.Compare.ListViewEx();
+            this.lvFile1 = new FellowOakDicom.Samples.Compare.ListViewEx();
             this.columnHeaderTag = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderVR = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderLength = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lblFile1 = new System.Windows.Forms.Label();
-            this.lvFile2 = new Dicom.Compare.ListViewEx();
+            this.lvFile2 = new FellowOakDicom.Samples.Compare.ListViewEx();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -279,12 +279,12 @@
 		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
 		private System.Windows.Forms.SplitContainer splitContainer1;
 		private System.Windows.Forms.Label lblFile1;
-		private Dicom.Compare.ListViewEx lvFile1;
+		private FellowOakDicom.Samples.Compare.ListViewEx lvFile1;
 		private System.Windows.Forms.ColumnHeader columnHeaderTag;
 		private System.Windows.Forms.ColumnHeader columnHeaderVR;
 		private System.Windows.Forms.ColumnHeader columnHeaderLength;
 		private System.Windows.Forms.ColumnHeader columnHeaderValue;
-		private Dicom.Compare.ListViewEx lvFile2;
+		private FellowOakDicom.Samples.Compare.ListViewEx lvFile2;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader3;

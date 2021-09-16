@@ -1,30 +1,29 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Dicom.Log;
-using Dicom.Network;
+using FellowOakDicom.Imaging.Codec;
+using FellowOakDicom.Log;
+using FellowOakDicom.Network;
 
-namespace Dicom.CStoreSCP
+namespace FellowOakDicom.Samples.CStoreSCP
 {
+
     internal class Program
     {
 
-        private static string StoragePath = @".\DICOM";
+        private const string _storagePath = @".\DICOM";
 
         private static void Main(string[] args)
         {
-            // preload dictionary to prevent timeouts
-            var dict = DicomDictionary.Default;
-
             // start DICOM server on port from command line argument or 11112
             var port = args != null && args.Length > 0 && int.TryParse(args[0], out int tmp) ? tmp : 11112;
             Console.WriteLine($"Starting C-Store SCP server on port {port}");
 
-            using (var server = DicomServer.Create<CStoreSCP>(port))
+            using (var server = DicomServerFactory.Create<CStoreSCP>(port))
             {
                 // end process
                 Console.WriteLine("Press <return> to end...");
@@ -35,14 +34,14 @@ namespace Dicom.CStoreSCP
 
         private class CStoreSCP : DicomService, IDicomServiceProvider, IDicomCStoreProvider, IDicomCEchoProvider
         {
-            private static readonly DicomTransferSyntax[] AcceptedTransferSyntaxes = new DicomTransferSyntax[]
+            private static readonly DicomTransferSyntax[] _acceptedTransferSyntaxes = new DicomTransferSyntax[]
             {
                DicomTransferSyntax.ExplicitVRLittleEndian,
                DicomTransferSyntax.ExplicitVRBigEndian,
                DicomTransferSyntax.ImplicitVRLittleEndian
             };
 
-            private static readonly DicomTransferSyntax[] AcceptedImageTransferSyntaxes = new DicomTransferSyntax[]
+            private static readonly DicomTransferSyntax[] _acceptedImageTransferSyntaxes = new DicomTransferSyntax[]
             {
                // Lossless
                DicomTransferSyntax.JPEGLSLossless,
@@ -61,10 +60,12 @@ namespace Dicom.CStoreSCP
                DicomTransferSyntax.ImplicitVRLittleEndian
             };
 
-            public CStoreSCP(INetworkStream stream, Encoding fallbackEncoding, Logger log)
-                : base(stream, fallbackEncoding, log)
+
+            public CStoreSCP(INetworkStream stream, Encoding fallbackEncoding, ILogger log, ILogManager logManager, INetworkManager network, ITranscoderManager transcoder)
+                : base(stream, fallbackEncoding, log, logManager, network, transcoder)
             {
             }
+
 
             public Task OnReceiveAssociationRequestAsync(DicomAssociation association)
             {
@@ -78,52 +79,71 @@ namespace Dicom.CStoreSCP
 
                 foreach (var pc in association.PresentationContexts)
                 {
-                    if (pc.AbstractSyntax == DicomUID.Verification) pc.AcceptTransferSyntaxes(AcceptedTransferSyntaxes);
-                    else if (pc.AbstractSyntax.StorageCategory != DicomStorageCategory.None) pc.AcceptTransferSyntaxes(AcceptedImageTransferSyntaxes);
+                    if (pc.AbstractSyntax == DicomUID.Verification)
+                    {
+                        pc.AcceptTransferSyntaxes(_acceptedTransferSyntaxes);
+                    }
+                    else if (pc.AbstractSyntax.StorageCategory != DicomStorageCategory.None)
+                    {
+                        pc.AcceptTransferSyntaxes(_acceptedImageTransferSyntaxes);
+                    }
                 }
 
                 return SendAssociationAcceptAsync(association);
             }
+
 
             public Task OnReceiveAssociationReleaseRequestAsync()
             {
                 return SendAssociationReleaseResponseAsync();
             }
 
+
             public void OnReceiveAbort(DicomAbortSource source, DicomAbortReason reason)
             {
+                /* nothing to do here */
             }
+
 
             public void OnConnectionClosed(Exception exception)
             {
+                /* nothing to do here */
             }
 
-            public DicomCStoreResponse OnCStoreRequest(DicomCStoreRequest request)
+
+            public async Task<DicomCStoreResponse> OnCStoreRequestAsync(DicomCStoreRequest request)
             {
-                var studyUid = request.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID);
+                var studyUid = request.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID).Trim();
                 var instUid = request.SOPInstanceUID.UID;
 
-                var path = Path.GetFullPath(Program.StoragePath);
+                var path = Path.GetFullPath(Program._storagePath);
                 path = Path.Combine(path, studyUid);
 
-                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
 
                 path = Path.Combine(path, instUid) + ".dcm";
 
-                request.File.Save(path);
+                await request.File.SaveAsync(path);
 
                 return new DicomCStoreResponse(request, DicomStatus.Success);
             }
 
-            public void OnCStoreRequestException(string tempFileName, Exception e)
+
+            public Task OnCStoreRequestExceptionAsync(string tempFileName, Exception e)
             {
                 // let library handle logging and error response
+                return Task.CompletedTask;
             }
 
-            public DicomCEchoResponse OnCEchoRequest(DicomCEchoRequest request)
+
+            public Task<DicomCEchoResponse> OnCEchoRequestAsync(DicomCEchoRequest request)
             {
-                return new DicomCEchoResponse(request, DicomStatus.Success);
+                return Task.FromResult(new DicomCEchoResponse(request, DicomStatus.Success));
             }
+
         }
     }
 }

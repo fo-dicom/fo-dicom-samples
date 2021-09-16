@@ -1,10 +1,11 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
+using FellowOakDicom.Media;
 using System;
 using System.IO;
 
-namespace Dicom.Media
+namespace FellowOakDicom.Samples.Media
 {
     internal static class Program
     {
@@ -52,7 +53,7 @@ namespace Dicom.Media
             var dicomDir = new DicomDirectory();
             foreach (var file in dirInfo.GetFiles("*.*", SearchOption.AllDirectories))
             {
-                var dicomFile = Dicom.DicomFile.Open(file.FullName);
+                var dicomFile = DicomFile.Open(file.FullName);
 
                 dicomDir.AddFile(dicomFile, string.Format(@"000001\{0}", file.Name));
             }

@@ -1,7 +1,10 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System.Web.Http;
+using FellowOakDicom;
+using FellowOakDicom.Imaging;
+using FellowOakDicom.Imaging.NativeCodec;
 
 namespace Wado
 {
@@ -10,6 +13,15 @@ namespace Wado
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
+
+            new DicomSetupBuilder()
+                .RegisterServices(s => s
+                    .AddFellowOakDicom()
+                    .AddTranscoderManager<NativeTranscoderManager>()
+                    .AddImageManager<WinFormsImageManager>()
+                    )
+                .Build();
+
         }
     }
 }

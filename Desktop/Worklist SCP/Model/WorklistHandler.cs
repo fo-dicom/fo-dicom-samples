@@ -1,7 +1,7 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
-using Dicom;
+using FellowOakDicom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,14 +9,14 @@ using System.Text.RegularExpressions;
 namespace Worklist_SCP.Model
 {
 
-    public class WorklistHandler
+    public static class WorklistHandler
     {
 
         public static IEnumerable<DicomDataset> FilterWorklistItems(DicomDataset request, List<WorklistItem> allWorklistItems)
         {
             var exams = allWorklistItems.AsQueryable();
 
-            if ( request.TryGetSingleValue(DicomTag.PatientID, out string patientId))
+            if (request.TryGetSingleValue(DicomTag.PatientID, out string patientId))
             {
                 exams = exams.Where(x => x.PatientID.Equals(patientId));
             }

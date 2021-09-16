@@ -1,17 +1,17 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using Dicom;
+using FellowOakDicom;
 
 namespace QueryRetrieve_SCP.Model
 {
     public class StupidSlowFinderService : IDicomImageFinderService
     {
-        private static readonly string _storagePath = @".\DICOM";
+        private const string _storagePath = @".\DICOM";
 
 
         public List<string> FindPatientFiles(string PatientName, string PatientId) =>
@@ -73,7 +73,7 @@ namespace QueryRetrieve_SCP.Model
                     var dcmFile = DicomFile.Open(fileNameToTest);
 
                     var key = level(dcmFile.Dataset);
-                    if (!string.IsNullOrEmpty(key) 
+                    if (!string.IsNullOrEmpty(key)
                         && !foundKeys.Contains(key)
                         && matches(dcmFile.Dataset))
                     {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
-using Dicom;
-using Dicom.Imaging;
-using Dicom.IO;
-using Dicom.Network;
-using Dicom.Printing;
-using DicomClient = Dicom.Network.Client.DicomClient;
-
+using FellowOakDicom;
+using FellowOakDicom.Imaging;
+using FellowOakDicom.IO;
+using FellowOakDicom.Network;
+using FellowOakDicom.Printing;
+using FellowOakDicom.Network.Client;
+using FellowOakDicom.IO.Buffer;
 
 namespace Print_SCU
 {
@@ -29,11 +29,11 @@ namespace Print_SCU
 
         public PrintJob(string jobLabel)
         {
-            FilmSession = new FilmSession(DicomUID.BasicFilmSessionSOPClass)
+            FilmSession = new FilmSession(DicomUID.BasicFilmSession)
             {
-               FilmSessionLabel = jobLabel,
-               MediumType = "PAPER",
-               NumberOfCopies = 1
+                FilmSessionLabel = jobLabel,
+                MediumType = "PAPER",
+                NumberOfCopies = 1
             };
         }
 
@@ -41,12 +41,12 @@ namespace Print_SCU
         {
             var filmBox = new FilmBox(FilmSession, null, DicomTransferSyntax.ExplicitVRLittleEndian)
             {
-               ImageDisplayFormat = format,
-               FilmOrientation = orientation,
-               FilmSizeID = filmSize,
-               MagnificationType = "NONE",
-               BorderDensity = "BLACK",
-               EmptyImageDensity = "BLACK"
+                ImageDisplayFormat = format,
+                FilmOrientation = orientation,
+                FilmSizeID = filmSize,
+                MagnificationType = "NONE",
+                BorderDensity = "BLACK",
+                EmptyImageDensity = "BLACK"
             };
 
             filmBox.Initialize();
@@ -99,7 +99,7 @@ namespace Print_SCU
             var pixelData = DicomPixelData.Create(dataset, true);
 
             var pixels = GetGreyBytes(bitmap);
-            var buffer = new Dicom.IO.Buffer.MemoryByteBuffer(pixels.Data);
+            var buffer = new MemoryByteBuffer(pixels.Data);
 
             pixelData.AddFrame(buffer);
 
@@ -140,7 +140,7 @@ namespace Print_SCU
             var pixelData = DicomPixelData.Create(dataset, true);
 
             var pixels = GetColorbytes(bitmap);
-            var buffer = new Dicom.IO.Buffer.MemoryByteBuffer(pixels.Data);
+            var buffer = new MemoryByteBuffer(pixels.Data);
 
             pixelData.AddFrame(buffer);
 
@@ -157,13 +157,13 @@ namespace Print_SCU
 
         public async Task Print()
         {
-            var dicomClient = new DicomClient(RemoteAddress, RemotePort, false, CallingAE, CalledAE);
+            var dicomClient = DicomClientFactory.Create(RemoteAddress, RemotePort, false, CallingAE, CalledAE);
 
             await dicomClient.AddRequestAsync(
                 new DicomNCreateRequest(FilmSession.SOPClassUID, FilmSession.SOPInstanceUID)
-                    {
-                        Dataset = FilmSession
-                    });
+                {
+                    Dataset = FilmSession
+                });
 
 
             foreach (var filmbox in FilmSession.BasicFilmBoxes)
@@ -173,7 +173,7 @@ namespace Print_SCU
 
                 var filmBoxRequest = new DicomNCreateRequest(FilmBox.SOPClassUID, filmbox.SOPInstanceUID)
                 {
-                   Dataset = filmbox
+                    Dataset = filmbox
                 };
                 filmBoxRequest.OnResponseReceived = (request, response) =>
                     {

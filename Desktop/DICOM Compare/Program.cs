@@ -1,10 +1,10 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using System.Windows.Forms;
 
-namespace Dicom.Compare
+namespace FellowOakDicom.Samples.Compare
 {
     internal static class Program
     {

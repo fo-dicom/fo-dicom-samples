@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -6,18 +6,18 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Dicom.Network;
-using DicomClient = Dicom.Network.Client.DicomClient;
+using FellowOakDicom.Network;
+using FellowOakDicom.Network.Client;
 
-namespace Dicom.CStoreSCU
+namespace FellowOakDicom.Samples.CStoreSCU
 {
     internal static class Program
     {
 
         private static string _storeServerHost = "www.dicomserver.co.uk";
         private static int _storeServerPort = 11112;
-        private static readonly string _storeServerAET = "STORESCP";
-        private static readonly string _aet = "FODICOMSCU";
+        private const string _storeServerAET = "STORESCP";
+        private const string _aet = "FODICOMSCU";
 
         static async Task Main(string[] args)
         {
@@ -33,7 +33,7 @@ namespace Dicom.CStoreSCU
             Console.WriteLine("Client AE Title: " + _aet);
             Console.WriteLine("***************************************************");
 
-            var client = new DicomClient(_storeServerHost, _storeServerPort, false, _aet, _storeServerAET);
+            var client = DicomClientFactory.Create(_storeServerHost, _storeServerPort, false, _aet, _storeServerAET);
             client.NegotiateAsyncOps();
 
             do

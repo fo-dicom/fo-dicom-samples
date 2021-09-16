@@ -1,9 +1,9 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System.Collections.Generic;
 using System.Linq;
-using Dicom.Log;
+using FellowOakDicom.Log;
 
 namespace Worklist_SCP.Model
 {
@@ -16,10 +16,10 @@ namespace Worklist_SCP.Model
 
         public static Dictionary<string, WorklistItem> PendingProcedures { get; } = new Dictionary<string, WorklistItem>();
 
-        private readonly Logger _logger;
+        private readonly ILogger _logger;
 
 
-        public MppsHandler(Logger logger)
+        public MppsHandler(ILogger logger)
         {
             _logger = logger;
         }

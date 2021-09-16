@@ -1,14 +1,14 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Dicom;
-using Dicom.Log;
-using Dicom.Network;
-using DicomClient = Dicom.Network.Client.DicomClient;
+using FellowOakDicom;
+using FellowOakDicom.Log;
+using FellowOakDicom.Network;
+using FellowOakDicom.Network.Client;
 
 
 namespace Worklist_SCU
@@ -22,7 +22,9 @@ namespace Worklist_SCU
         public static async Task Main(string[] args)
         {
             // Initialize log manager.
-            LogManager.SetImplementation(ConsoleLogManager.Instance);
+            new DicomSetupBuilder()
+                .RegisterServices(s => s.AddFellowOakDicom().AddLogManager<ConsoleLogManager>())
+                .Build();
 
             // set the connection parameters
             var serverIP = "localhost";
@@ -50,7 +52,7 @@ namespace Worklist_SCU
 
         private static async Task<(string responseStatus, string responseMessage)> SendMppsCompletedAsync(string serverIP, int serverPort, string serverAET, string clientAET, DicomUID affectedInstanceUid, DicomDataset worklistItem)
         {
-            var client = new DicomClient(serverIP, serverPort, false, clientAET, serverAET);
+            var client = DicomClientFactory.Create(serverIP, serverPort, false, clientAET, serverAET);
             var dataset = new DicomDataset();
 
             DicomSequence procedureStepSq = worklistItem.GetSequence(DicomTag.ScheduledProcedureStepSequence);
@@ -97,7 +99,7 @@ namespace Worklist_SCU
             performedSeriesSq.Items.Add(serie);
             dataset.Add(performedSeriesSq);
 
-            var dicomFinished = new DicomNSetRequest(DicomUID.ModalityPerformedProcedureStepSOPClass, affectedInstanceUid)
+            var dicomFinished = new DicomNSetRequest(DicomUID.ModalityPerformedProcedureStep, affectedInstanceUid)
             {
                 Dataset = dataset
             };
@@ -124,7 +126,7 @@ namespace Worklist_SCU
 
         private static async Task<(DicomUID affectedInstanceUid, string responseStatus, string responseMessage)> SendMppsInProgressAsync(string serverIP, int serverPort, string serverAET, string clientAET, DicomDataset worklistItem)
         {
-            var client = new DicomClient(serverIP, serverPort, false, clientAET, serverAET);
+            var client = DicomClientFactory.Create(serverIP, serverPort, false, clientAET, serverAET);
             var dataset = new DicomDataset();
 
             DicomSequence procedureStepSq = worklistItem.GetSequence(DicomTag.ScheduledProcedureStepSequence);
@@ -191,7 +193,7 @@ namespace Worklist_SCU
 
             // create an unique UID as the effectedinstamceUid, this id will be needed for the N-SET also
             var effectedinstamceUid = DicomUID.Generate();
-            var dicomStartRequest = new DicomNCreateRequest(DicomUID.ModalityPerformedProcedureStepSOPClass, effectedinstamceUid)
+            var dicomStartRequest = new DicomNCreateRequest(DicomUID.ModalityPerformedProcedureStep, effectedinstamceUid)
             {
                 Dataset = dataset
             };
@@ -233,7 +235,7 @@ namespace Worklist_SCU
                 }
             };
 
-            var client = new DicomClient(serverIP, serverPort, false, clientAET, serverAET);
+            var client = DicomClientFactory.Create(serverIP, serverPort, false, clientAET, serverAET);
             await client.AddRequestAsync(cfind);
             await client.SendAsync();
 

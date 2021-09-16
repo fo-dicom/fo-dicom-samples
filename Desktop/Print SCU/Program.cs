@@ -1,10 +1,11 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using System.Drawing;
-using Dicom.Imaging;
-using Dicom.Log;
+using FellowOakDicom;
+using FellowOakDicom.Imaging;
+using FellowOakDicom.Log;
 
 namespace Print_SCU
 {
@@ -14,17 +15,22 @@ namespace Print_SCU
         private static async System.Threading.Tasks.Task Main(string[] args)
         {
             // Initialize log manager.
-            LogManager.SetImplementation(ConsoleLogManager.Instance);
+            new DicomSetupBuilder()
+                .RegisterServices(s => s
+                    .AddFellowOakDicom()
+                    .AddLogManager<ConsoleLogManager>()
+                    .AddImageManager<WinFormsImageManager>())
+                .Build();
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
             var printJob = new PrintJob("DICOM PRINT JOB")
             {
-               RemoteAddress = "localhost",
-               RemotePort = 8000,
-               CallingAE = "PRINTSCU",
-               CalledAE = "PRINTSCP"
+                RemoteAddress = "localhost",
+                RemotePort = 8000,
+                CallingAE = "PRINTSCU",
+                CalledAE = "PRINTSCP"
             };
 
             //greyscale

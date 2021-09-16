@@ -1,14 +1,14 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
-using Dicom;
-using Dicom.Network;
+using FellowOakDicom;
+using FellowOakDicom.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using DicomClient = Dicom.Network.Client.DicomClient;
+using FellowOakDicom.Network.Client;
 
 
 namespace QueryRetrieve_SCU
@@ -16,18 +16,18 @@ namespace QueryRetrieve_SCU
     internal static class Program
     {
 
-        private static readonly string StoragePath = @".\DICOM";
+        private const string _storagePath = @".\DICOM";
         // values of the Query Retrieve Server to test with.
-        private static readonly string QRServerHost = "localhost"; // "www.dicomserver.co.uk";
-        private static readonly int QRServerPort = 8001; // 104;
-        private static readonly string QRServerAET = "QRSCP"; // "STORESCP";
-        private static readonly string AET = "FODICOMSCU";
+        private const string _qrServerHost = "localhost"; // "www.dicomserver.co.uk";
+        private const int _qrServerPort = 8001; // 104;
+        private const string _qrServerAET = "QRSCP"; // "STORESCP";
+        private const string _aet = "FODICOMSCU";
 
 
 
         static async Task Main(string[] args)
         {
-            var client = new DicomClient(QRServerHost, QRServerPort, false, AET, QRServerAET);
+            var client = DicomClientFactory.Create(_qrServerHost, _qrServerPort, false, _aet, _qrServerAET);
             client.NegotiateAsyncOps();
 
             // Find a list of Studies
@@ -58,7 +58,7 @@ namespace QueryRetrieve_SCU
 
             // now get all the images of a serie with cGet in the same association
 
-            client = new DicomClient(QRServerHost, QRServerPort, false, AET, QRServerAET);
+            client = DicomClientFactory.Create(_qrServerHost, _qrServerPort, false, _aet, _qrServerAET);
             var cGetRequest = CreateCGetBySeriesUID(studyUID, serieUids.First());
             client.OnCStoreRequest += (DicomCStoreRequest req) =>
             {
@@ -82,7 +82,7 @@ namespace QueryRetrieve_SCU
             // if the images shall be sent to an existing storescp and this storescp is configured on the QR SCP then a CMove could be performed:
 
             // here we want to see how a error case looks like - because the test QR Server does not know the node FODICOMSCP
-            client = new DicomClient(QRServerHost, QRServerPort, false, AET, QRServerAET);
+            client = DicomClientFactory.Create(_qrServerHost, _qrServerPort, false, _aet, _qrServerAET);
             var cMoveRequest = CreateCMoveByStudyUID("STORESCP", studyUID);
             bool? moveSuccessfully = null;
             cMoveRequest.OnResponseReceived += (DicomCMoveRequest requ, DicomCMoveResponse response) =>
@@ -228,13 +228,16 @@ namespace QueryRetrieve_SCU
 
         public static void SaveImage(DicomDataset dataset)
         {
-            var studyUid = dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID);
-            var instUid = dataset.GetSingleValue<string>(DicomTag.SOPInstanceUID);
+            var studyUid = dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID).Trim();
+            var instUid = dataset.GetSingleValue<string>(DicomTag.SOPInstanceUID).Trim();
 
-            var path = Path.GetFullPath(StoragePath);
+            var path = Path.GetFullPath(_storagePath);
             path = Path.Combine(path, studyUid);
 
-            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
 
             path = Path.Combine(path, instUid) + ".dcm";
 

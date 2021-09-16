@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -10,11 +10,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Dicom;
-using Dicom.Log;
-using Dicom.Network;
+using FellowOakDicom;
+using FellowOakDicom.Log;
+using FellowOakDicom.Network;
 using QueryRetrieve_SCP.Model;
-using DicomClient = Dicom.Network.Client.DicomClient;
+using FellowOakDicom.Network.Client;
+using FellowOakDicom.Imaging.Codec;
 
 namespace QueryRetrieve_SCP
 {
@@ -23,7 +24,7 @@ namespace QueryRetrieve_SCP
     {
 
 
-        private static readonly DicomTransferSyntax[] AcceptedTransferSyntaxes = new DicomTransferSyntax[]
+        private static readonly DicomTransferSyntax[] _acceptedTransferSyntaxes = new DicomTransferSyntax[]
             {
                 DicomTransferSyntax.ExplicitVRLittleEndian,
                 DicomTransferSyntax.ExplicitVRBigEndian,
@@ -31,7 +32,7 @@ namespace QueryRetrieve_SCP
             };
 
 
-        private static readonly DicomTransferSyntax[] AcceptedImageTransferSyntaxes = new DicomTransferSyntax[]
+        private static readonly DicomTransferSyntax[] _acceptedImageTransferSyntaxes = new DicomTransferSyntax[]
             {
                 // Lossless
                 DicomTransferSyntax.JPEGLSLossless,
@@ -55,27 +56,17 @@ namespace QueryRetrieve_SCP
 
         public string CallingAE { get; protected set; }
         public string CalledAE { get; protected set; }
-        public IPAddress RemoteIP { get; private set; }
 
 
-        public QRService(INetworkStream stream, Encoding fallbackEncoding, Logger log) : base(stream, fallbackEncoding, log)
+        public QRService(INetworkStream stream, Encoding fallbackEncoding, ILogger log, ILogManager logmanager, INetworkManager network, ITranscoderManager transcoder) : base(stream, fallbackEncoding, log, logmanager, network, transcoder)
         {
-            var pi = stream.GetType().GetProperty("Socket", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (pi != null)
-            {
-                var endPoint = ((Socket)pi.GetValue(stream, null)).RemoteEndPoint as IPEndPoint;
-                RemoteIP = endPoint.Address;
-            }
-            else
-            {
-                RemoteIP = new IPAddress(new byte[] { 127, 0, 0, 1 });
-            }
+            /* initialization per association can be done here */
         }
 
 
-        public DicomCEchoResponse OnCEchoRequest(DicomCEchoRequest request)
+        public async Task<DicomCEchoResponse> OnCEchoRequestAsync(DicomCEchoRequest request)
         {
-            Logger.Info($"Received verification request from AE {CallingAE} with IP: {RemoteIP}");
+            Logger.Info($"Received verification request from AE {CallingAE} with IP: {Association.RemoteHost}");
             return new DicomCEchoResponse(request, DicomStatus.Success);
         }
 
@@ -105,7 +96,7 @@ namespace QueryRetrieve_SCP
             CallingAE = association.CallingAE;
             CalledAE = association.CalledAE;
 
-            Logger.Info($"Received association request from AE: {CallingAE} with IP: {RemoteIP} ");
+            Logger.Info($"Received association request from AE: {CallingAE} with IP: {association.RemoteHost} ");
 
             if (QRServer.AETitle != CalledAE)
             {
@@ -116,21 +107,21 @@ namespace QueryRetrieve_SCP
             foreach (var pc in association.PresentationContexts)
             {
                 if (pc.AbstractSyntax == DicomUID.Verification
-                    || pc.AbstractSyntax == DicomUID.PatientRootQueryRetrieveInformationModelFIND
-                    || pc.AbstractSyntax == DicomUID.PatientRootQueryRetrieveInformationModelMOVE
-                    || pc.AbstractSyntax == DicomUID.StudyRootQueryRetrieveInformationModelFIND
-                    || pc.AbstractSyntax == DicomUID.StudyRootQueryRetrieveInformationModelMOVE)
+                    || pc.AbstractSyntax == DicomUID.PatientRootQueryRetrieveInformationModelFind
+                    || pc.AbstractSyntax == DicomUID.PatientRootQueryRetrieveInformationModelMove
+                    || pc.AbstractSyntax == DicomUID.StudyRootQueryRetrieveInformationModelFind
+                    || pc.AbstractSyntax == DicomUID.StudyRootQueryRetrieveInformationModelMove)
                 {
-                    pc.AcceptTransferSyntaxes(AcceptedTransferSyntaxes);
+                    pc.AcceptTransferSyntaxes(_acceptedTransferSyntaxes);
                 }
-                else if (pc.AbstractSyntax == DicomUID.PatientRootQueryRetrieveInformationModelGET
-                    || pc.AbstractSyntax == DicomUID.StudyRootQueryRetrieveInformationModelGET)
+                else if (pc.AbstractSyntax == DicomUID.PatientRootQueryRetrieveInformationModelGet
+                    || pc.AbstractSyntax == DicomUID.StudyRootQueryRetrieveInformationModelGet)
                 {
-                    pc.AcceptTransferSyntaxes(AcceptedImageTransferSyntaxes);
+                    pc.AcceptTransferSyntaxes(_acceptedImageTransferSyntaxes);
                 }
                 else if (pc.AbstractSyntax.StorageCategory != DicomStorageCategory.None)
                 {
-                    pc.AcceptTransferSyntaxes(AcceptedImageTransferSyntaxes);
+                    pc.AcceptTransferSyntaxes(_acceptedImageTransferSyntaxes);
                 }
                 else
                 {
@@ -144,7 +135,7 @@ namespace QueryRetrieve_SCP
         }
 
 
-        public IEnumerable<DicomCFindResponse> OnCFindRequest(DicomCFindRequest request)
+        public async IAsyncEnumerable<DicomCFindResponse> OnCFindRequestAsync(DicomCFindRequest request)
         {
             var queryLevel = request.Level;
 
@@ -232,7 +223,7 @@ namespace QueryRetrieve_SCP
         }
 
 
-        public IEnumerable<DicomCMoveResponse> OnCMoveRequest(DicomCMoveRequest request)
+        public async IAsyncEnumerable<DicomCMoveResponse> OnCMoveRequestAsync(DicomCMoveRequest request)
         {
             // the c-move request contains the DestinationAE. the data of this AE should be configured somewhere.
             if (request.DestinationAE != "STORESCP")
@@ -252,15 +243,15 @@ namespace QueryRetrieve_SCP
             switch (request.Level)
             {
                 case DicomQueryRetrieveLevel.Patient:
-                    matchingFiles = finderService.FindFilesByUID(request.Dataset.GetSingleValue<string>(DicomTag.PatientID), string.Empty, string.Empty);
+                    matchingFiles = finderService.FindFilesByUID(request.Dataset.GetString(DicomTag.PatientID), string.Empty, string.Empty);
                     break;
 
                 case DicomQueryRetrieveLevel.Study:
-                    matchingFiles = finderService.FindFilesByUID(string.Empty, request.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID), string.Empty);
+                    matchingFiles = finderService.FindFilesByUID(string.Empty, request.Dataset.GetString(DicomTag.StudyInstanceUID), string.Empty);
                     break;
 
                 case DicomQueryRetrieveLevel.Series:
-                    matchingFiles = finderService.FindFilesByUID(string.Empty, string.Empty, request.Dataset.GetSingleValue<string>(DicomTag.SeriesInstanceUID));
+                    matchingFiles = finderService.FindFilesByUID(string.Empty, string.Empty, request.Dataset.GetString(DicomTag.SeriesInstanceUID));
                     break;
 
                 case DicomQueryRetrieveLevel.Image:
@@ -268,7 +259,7 @@ namespace QueryRetrieve_SCP
                     yield break;
             }
 
-            var client = new DicomClient(destinationIP, destinationPort, false, QRServer.AETitle, request.DestinationAE);
+            var client = DicomClientFactory.Create(destinationIP, destinationPort, false, QRServer.AETitle, request.DestinationAE);
             client.NegotiateAsyncOps();
             int storeTotal = matchingFiles.Count();
             int storeDone = 0; // this variable stores the number of instances that have already been sent
@@ -309,7 +300,7 @@ namespace QueryRetrieve_SCP
         }
 
 
-        public IEnumerable<DicomCGetResponse> OnCGetRequest(DicomCGetRequest request)
+        public async IAsyncEnumerable<DicomCGetResponse> OnCGetRequestAsync(DicomCGetRequest request)
         {
             IDicomImageFinderService finderService = QRServer.CreateFinderService;
             IEnumerable<string> matchingFiles = Enumerable.Empty<string>();
@@ -317,15 +308,15 @@ namespace QueryRetrieve_SCP
             switch (request.Level)
             {
                 case DicomQueryRetrieveLevel.Patient:
-                    matchingFiles = finderService.FindFilesByUID(request.Dataset.GetSingleValue<string>(DicomTag.PatientID), string.Empty, string.Empty);
+                    matchingFiles = finderService.FindFilesByUID(request.Dataset.GetString(DicomTag.PatientID), string.Empty, string.Empty);
                     break;
 
                 case DicomQueryRetrieveLevel.Study:
-                    matchingFiles = finderService.FindFilesByUID(string.Empty, request.Dataset.GetSingleValue<string>(DicomTag.StudyInstanceUID), string.Empty);
+                    matchingFiles = finderService.FindFilesByUID(string.Empty, request.Dataset.GetString(DicomTag.StudyInstanceUID), string.Empty);
                     break;
 
                 case DicomQueryRetrieveLevel.Series:
-                    matchingFiles = finderService.FindFilesByUID(string.Empty, string.Empty, request.Dataset.GetSingleValue<string>(DicomTag.SeriesInstanceUID));
+                    matchingFiles = finderService.FindFilesByUID(string.Empty, string.Empty, request.Dataset.GetString(DicomTag.SeriesInstanceUID));
                     break;
 
                 case DicomQueryRetrieveLevel.Image:

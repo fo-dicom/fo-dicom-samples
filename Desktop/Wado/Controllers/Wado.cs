@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -13,10 +13,9 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Cors;
-using Dicom;
-using Dicom.Imaging;
-using Dicom.Imaging.Codec;
-using Dicom.IO;
+using FellowOakDicom;
+using FellowOakDicom.Imaging;
+using FellowOakDicom.Imaging.Codec;
 using Wado.Models;
 
 namespace Wado.Controllers
@@ -100,15 +99,19 @@ namespace Wado.Controllers
 
             //we do not handle anonymization
             if (anonymize == "yes")
+            {
                 return requestMessage.CreateErrorResponse(HttpStatusCode.NotAcceptable, "anonymise is not supported on the server");
+            }
 
             //we extract the content types from contentType value
             bool canParseContentTypeParameter = ExtractContentTypesFromContentTypeParameter(contentType,
                 out string[] contentTypes);
 
             if (!canParseContentTypeParameter)
+            {
                 return requestMessage.CreateErrorResponse(HttpStatusCode.NotAcceptable,
                     string.Format("contentType parameter (value: {0}) cannot be parsed", contentType));
+            }
 
 
             //8.1.5 The Web Client shall provide list of content types it supports in the "Accept" field of the GET method. The
@@ -161,13 +164,11 @@ namespace Wado.Controllers
 
             try
             {
-                IOManager.SetImplementation(DesktopIOManager.Instance);
-
                 DicomFile dicomFile = await DicomFile.OpenAsync(dicomImagePath);
 
                 string finalContentType = PickFinalContentType(compatibleContentTypesByOrderOfPreference, dicomFile);
 
-                return ReturnImageAsHttpResponse(dicomFile, 
+                return ReturnImageAsHttpResponse(dicomFile,
                     finalContentType, transferSyntax);
             }
             catch (Exception ex)
@@ -194,7 +195,7 @@ namespace Wado.Controllers
 
             if (finalContentType == JpegImageContentType)
             {
-                DicomImage image = new DicomImage(dicomFile.Dataset);
+                var image = new DicomImage(dicomFile.Dataset);
                 Bitmap bmp = image.RenderImage(0).As<Bitmap>();
 
                 //When an image/jpeg MIME type is returned, the image shall be encoded using the JPEG baseline lossy 8
@@ -213,23 +214,15 @@ namespace Wado.Controllers
                 DicomTransferSyntax requestedTransferSyntax = DicomTransferSyntax.ExplicitVRLittleEndian;
 
                 if (transferSyntax != null)
+                {
                     requestedTransferSyntax = GetTransferSyntaxFromString(transferSyntax);
+                }
 
                 bool transferSyntaxIsTheSameAsSourceFile =
                     dicomFile.FileMetaInfo.TransferSyntax == requestedTransferSyntax;
 
                 //we only change transfer syntax if we need to
-                DicomFile dicomFileToStream;
-                if (!transferSyntaxIsTheSameAsSourceFile)
-                {
-                    dicomFileToStream = dicomFile.Clone(requestedTransferSyntax);
-                }
-                else
-                {
-                    dicomFileToStream = dicomFile;
-                }
-
-
+                DicomFile dicomFileToStream = !transferSyntaxIsTheSameAsSourceFile ? dicomFile.Clone(requestedTransferSyntax) : dicomFile;
                 header = new MediaTypeHeaderValue(AppDicomContentType);
                 streamContent = new MemoryStream();
                 dicomFileToStream.Save(streamContent);
@@ -269,14 +262,7 @@ namespace Wado.Controllers
             string chosenContentType;
             if (chooseDefaultValue)
             {
-                if (isMultiFrame)
-                {
-                    chosenContentType = AppDicomContentType;
-                }
-                else
-                {
-                    chosenContentType = JpegImageContentType;
-                }
+                chosenContentType = isMultiFrame ? AppDicomContentType : JpegImageContentType;
             }
             else
             {
@@ -312,7 +298,7 @@ namespace Wado.Controllers
             }
             else
             {
-                contentTypes = new[] {contentType};
+                contentTypes = new[] { contentType };
             }
 
             //we now need to parse each type which follows the RFC2616 syntax

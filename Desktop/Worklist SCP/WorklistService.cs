@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -6,9 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dicom;
-using Dicom.Log;
-using Dicom.Network;
+using FellowOakDicom;
+using FellowOakDicom.Imaging.Codec;
+using FellowOakDicom.Log;
+using FellowOakDicom.Network;
 using Worklist_SCP.Model;
 
 namespace Worklist_SCP
@@ -16,7 +17,7 @@ namespace Worklist_SCP
     public class WorklistService : DicomService, IDicomServiceProvider, IDicomCEchoProvider, IDicomCFindProvider, IDicomNServiceProvider
     {
 
-        private static readonly DicomTransferSyntax[] AcceptedTransferSyntaxes = new DicomTransferSyntax[]
+        private static readonly DicomTransferSyntax[] _acceptedTransferSyntaxes = new DicomTransferSyntax[]
            {
                 DicomTransferSyntax.ExplicitVRLittleEndian,
                 DicomTransferSyntax.ExplicitVRBigEndian,
@@ -38,19 +39,19 @@ namespace Worklist_SCP
         }
 
 
-        public WorklistService(INetworkStream stream, Encoding fallbackEncoding, Logger log) : base(stream, fallbackEncoding, log)
+        public WorklistService(INetworkStream stream, Encoding fallbackEncoding, ILogger log, ILogManager logmanager, INetworkManager network, ITranscoderManager transcoder) : base(stream, fallbackEncoding, log, logmanager, network, transcoder)
         {
         }
 
 
-        public DicomCEchoResponse OnCEchoRequest(DicomCEchoRequest request)
+        public async Task<DicomCEchoResponse> OnCEchoRequestAsync(DicomCEchoRequest request)
         {
             Logger.Info($"Received verification request from AE {Association.CallingAE} with IP: {Association.RemoteHost}");
             return new DicomCEchoResponse(request, DicomStatus.Success);
         }
 
 
-        public IEnumerable<DicomCFindResponse> OnCFindRequest(DicomCFindRequest request)
+        public async IAsyncEnumerable<DicomCFindResponse> OnCFindRequestAsync(DicomCFindRequest request)
         {
             // you should validate the level of the request. I leave it here since there is a bug in version 3.0.2
             // from version 4 on this should be done
@@ -102,12 +103,12 @@ namespace Worklist_SCP
             foreach (var pc in association.PresentationContexts)
             {
                 if (pc.AbstractSyntax == DicomUID.Verification
-                    || pc.AbstractSyntax == DicomUID.ModalityWorklistInformationModelFIND
-                    || pc.AbstractSyntax == DicomUID.ModalityPerformedProcedureStepSOPClass
-                    || pc.AbstractSyntax == DicomUID.ModalityPerformedProcedureStepNotificationSOPClass
-                    || pc.AbstractSyntax == DicomUID.ModalityPerformedProcedureStepNotificationSOPClass)
+                    || pc.AbstractSyntax == DicomUID.ModalityWorklistInformationModelFind
+                    || pc.AbstractSyntax == DicomUID.ModalityPerformedProcedureStep
+                    || pc.AbstractSyntax == DicomUID.ModalityPerformedProcedureStepNotification
+                    || pc.AbstractSyntax == DicomUID.ModalityPerformedProcedureStepNotification)
                 {
-                    pc.AcceptTransferSyntaxes(AcceptedTransferSyntaxes);
+                    pc.AcceptTransferSyntaxes(_acceptedTransferSyntaxes);
                 }
                 else
                 {
@@ -127,9 +128,9 @@ namespace Worklist_SCP
         }
 
 
-        public DicomNCreateResponse OnNCreateRequest(DicomNCreateRequest request)
+        public async Task<DicomNCreateResponse> OnNCreateRequestAsync(DicomNCreateRequest request)
         {
-            if (request.SOPClassUID != DicomUID.ModalityPerformedProcedureStepSOPClass)
+            if (request.SOPClassUID != DicomUID.ModalityPerformedProcedureStep)
             {
                 return new DicomNCreateResponse(request, DicomStatus.SOPClassNotSupported);
             }
@@ -147,9 +148,9 @@ namespace Worklist_SCP
         }
 
 
-        public DicomNSetResponse OnNSetRequest(DicomNSetRequest request)
+        public async Task<DicomNSetResponse> OnNSetRequestAsync(DicomNSetRequest request)
         {
-            if (request.SOPClassUID != DicomUID.ModalityPerformedProcedureStepSOPClass)
+            if (request.SOPClassUID != DicomUID.ModalityPerformedProcedureStep)
             {
                 return new DicomNSetResponse(request, DicomStatus.SOPClassNotSupported);
             }
@@ -174,7 +175,10 @@ namespace Worklist_SCP
                     {
                         // here you can read the SOPClassUID and SOPInstanceUID
                         var instanceUID = instanceDataset.GetSingleValueOrDefault(DicomTag.ReferencedSOPInstanceUID, string.Empty);
-                        if (!string.IsNullOrEmpty(instanceUID)) listOfInstanceUIDs.Add(instanceUID);
+                        if (!string.IsNullOrEmpty(instanceUID))
+                        {
+                            listOfInstanceUIDs.Add(instanceUID);
+                        }
                     }
                 }
                 var ok = MppsSource.SetCompleted(requestedSopInstanceUID, doseDescription, listOfInstanceUIDs);
@@ -198,25 +202,25 @@ namespace Worklist_SCP
 
         #region not supported methods but that are required because of the interface
 
-        public DicomNDeleteResponse OnNDeleteRequest(DicomNDeleteRequest request)
+        public async Task<DicomNDeleteResponse> OnNDeleteRequestAsync(DicomNDeleteRequest request)
         {
             Logger.Log(LogLevel.Info, "receiving N-Delete, not supported");
             return new DicomNDeleteResponse(request, DicomStatus.UnrecognizedOperation);
         }
 
-        public DicomNEventReportResponse OnNEventReportRequest(DicomNEventReportRequest request)
+        public async Task<DicomNEventReportResponse> OnNEventReportRequestAsync(DicomNEventReportRequest request)
         {
             Logger.Log(LogLevel.Info, "receiving N-Event, not supported");
             return new DicomNEventReportResponse(request, DicomStatus.UnrecognizedOperation);
         }
 
-        public DicomNGetResponse OnNGetRequest(DicomNGetRequest request)
+        public async Task<DicomNGetResponse> OnNGetRequestAsync(DicomNGetRequest request)
         {
             Logger.Log(LogLevel.Info, "receiving N-Get, not supported");
             return new DicomNGetResponse(request, DicomStatus.UnrecognizedOperation);
         }
 
-        public DicomNActionResponse OnNActionRequest(DicomNActionRequest request)
+        public async Task<DicomNActionResponse> OnNActionRequestAsync(DicomNActionRequest request)
         {
             Logger.Log(LogLevel.Info, "receiving N-Action, not supported");
             return new DicomNActionResponse(request, DicomStatus.UnrecognizedOperation);

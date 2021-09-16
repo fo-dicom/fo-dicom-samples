@@ -1,7 +1,7 @@
-﻿// Copyright (c) 2012-2020 fo-dicom contributors.
+﻿// Copyright (c) 2012-2021 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
-using Dicom.Network;
+using FellowOakDicom.Network;
 using QueryRetrieve_SCP.Model;
 
 namespace QueryRetrieve_SCP
@@ -21,7 +21,7 @@ namespace QueryRetrieve_SCP
         public static void Start(int port, string aet)
         {
             AETitle = aet;
-            _server = DicomServer.Create<QRService>(port);
+            _server = DicomServerFactory.Create<QRService>(port);
         }
 
 
