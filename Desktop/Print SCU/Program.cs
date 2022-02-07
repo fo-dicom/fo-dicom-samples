@@ -37,8 +37,8 @@ namespace Print_SCU
             var greyscaleImg = new DicomImage(@"Data\1.3.51.5155.1353.20020423.1100947.1.0.0.dcm");
             using (var bitmap = greyscaleImg.RenderImage().As<Bitmap>())
             {
-                printJob.StartFilmBox("STANDARD\\1,1", "PORTRAIT", "A4");
                 printJob.FilmSession.IsColor = false; //set to true to print in color
+                printJob.StartFilmBox("STANDARD\\1,1", "PORTRAIT", "A4");
                 printJob.AddImage(bitmap, 0);
                 printJob.EndFilmBox();
             }
@@ -47,8 +47,8 @@ namespace Print_SCU
             var colorImg = new DicomImage(@"Data\US-RGB-8-epicard.dcm");
             using (var bitmap = colorImg.RenderImage().As<Bitmap>())
             {
-                printJob.StartFilmBox("STANDARD\\1,1", "PORTRAIT", "A4");
                 printJob.FilmSession.IsColor = true; //set to true to print in color
+                printJob.StartFilmBox("STANDARD\\1,1", "PORTRAIT", "A4");
                 printJob.AddImage(bitmap, 0);
                 printJob.EndFilmBox();
             }
