@@ -43,8 +43,8 @@ namespace FellowOakDicom.Samples.Printing
 
         #region Constructors and Initialization
 
-        public PrintService(INetworkStream stream, Encoding fallbackEncoding, ILogger log, ILogManager logmanager, INetworkManager network, ITranscoderManager transcoder)
-            : base(stream, fallbackEncoding, log, logmanager, network, transcoder)
+        public PrintService(INetworkStream stream, Encoding fallbackEncoding, ILogger log, DicomServiceDependencies dependencies)
+                : base(stream, fallbackEncoding, log, dependencies)
         {
             /* initialization per association can be done here */
         }
@@ -226,21 +226,21 @@ namespace FellowOakDicom.Samples.Printing
 
         #region N-DELETE request handler
 
-        public async Task<DicomNDeleteResponse> OnNDeleteRequestAsync(DicomNDeleteRequest request)
+        public Task<DicomNDeleteResponse> OnNDeleteRequestAsync(DicomNDeleteRequest request)
         {
             lock (_synchRoot)
             {
                 if (request.SOPClassUID == DicomUID.BasicFilmSession)
                 {
-                    return DeleteFilmSession(request);
+                    return Task.FromResult(DeleteFilmSession(request));
                 }
                 else if (request.SOPClassUID == DicomUID.BasicFilmBox)
                 {
-                    return DeleteFilmBox(request);
+                    return Task.FromResult(DeleteFilmBox(request));
                 }
                 else
                 {
-                    return new DicomNDeleteResponse(request, DicomStatus.NoSuchSOPClass);
+                    return Task.FromResult(new DicomNDeleteResponse(request, DicomStatus.NoSuchSOPClass));
                 }
             }
         }
@@ -383,7 +383,7 @@ namespace FellowOakDicom.Samples.Printing
 
         #region N-GET request handler
 
-        public async Task<DicomNGetResponse> OnNGetRequestAsync(DicomNGetRequest request)
+        public Task<DicomNGetResponse> OnNGetRequestAsync(DicomNGetRequest request)
         {
             lock (_synchRoot)
             {
@@ -392,20 +392,20 @@ namespace FellowOakDicom.Samples.Printing
                 if (request.SOPClassUID == DicomUID.Printer
                     && request.SOPInstanceUID == DicomUID.PrinterInstance)
                 {
-                    return GetPrinter(request);
+                    return Task.FromResult(GetPrinter(request));
                 }
                 else if (request.SOPClassUID == DicomUID.PrintJob)
                 {
-                    return GetPrintJob(request);
+                    return Task.FromResult(GetPrintJob(request));
                 }
                 else if (request.SOPClassUID == DicomUID.PrinterConfigurationRetrieval
                          && request.SOPInstanceUID == DicomUID.PrinterConfigurationRetrievalInstance)
                 {
-                    return GetPrinterConfiguration(request);
+                    return Task.FromResult(GetPrinterConfiguration(request));
                 }
                 else
                 {
-                    return new DicomNGetResponse(request, DicomStatus.NoSuchSOPClass);
+                    return Task.FromResult(new DicomNGetResponse(request, DicomStatus.NoSuchSOPClass));
                 }
             }
         }

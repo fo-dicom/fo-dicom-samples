@@ -61,8 +61,8 @@ namespace FellowOakDicom.Samples.CStoreSCP
             };
 
 
-            public CStoreSCP(INetworkStream stream, Encoding fallbackEncoding, ILogger log, ILogManager logManager, INetworkManager network, ITranscoderManager transcoder)
-                : base(stream, fallbackEncoding, log, logManager, network, transcoder)
+            public CStoreSCP(INetworkStream stream, Encoding fallbackEncoding, ILogger log, DicomServiceDependencies dependencies)
+                : base(stream, fallbackEncoding, log, dependencies)
             {
             }
 

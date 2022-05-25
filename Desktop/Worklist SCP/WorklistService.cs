@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FellowOakDicom;
-using FellowOakDicom.Imaging.Codec;
 using FellowOakDicom.Log;
 using FellowOakDicom.Network;
 using Worklist_SCP.Model;
@@ -39,7 +38,8 @@ namespace Worklist_SCP
         }
 
 
-        public WorklistService(INetworkStream stream, Encoding fallbackEncoding, ILogger log, ILogManager logmanager, INetworkManager network, ITranscoderManager transcoder) : base(stream, fallbackEncoding, log, logmanager, network, transcoder)
+        public WorklistService(INetworkStream stream, Encoding fallbackEncoding, ILogger log, DicomServiceDependencies dependencies)
+                : base(stream, fallbackEncoding, log, dependencies)
         {
         }
 
@@ -202,28 +202,28 @@ namespace Worklist_SCP
 
         #region not supported methods but that are required because of the interface
 
-        public async Task<DicomNDeleteResponse> OnNDeleteRequestAsync(DicomNDeleteRequest request)
+        public Task<DicomNDeleteResponse> OnNDeleteRequestAsync(DicomNDeleteRequest request)
         {
             Logger.Log(LogLevel.Info, "receiving N-Delete, not supported");
-            return new DicomNDeleteResponse(request, DicomStatus.UnrecognizedOperation);
+            return Task.FromResult(new DicomNDeleteResponse(request, DicomStatus.UnrecognizedOperation));
         }
 
-        public async Task<DicomNEventReportResponse> OnNEventReportRequestAsync(DicomNEventReportRequest request)
+        public Task<DicomNEventReportResponse> OnNEventReportRequestAsync(DicomNEventReportRequest request)
         {
             Logger.Log(LogLevel.Info, "receiving N-Event, not supported");
-            return new DicomNEventReportResponse(request, DicomStatus.UnrecognizedOperation);
+            return Task.FromResult(new DicomNEventReportResponse(request, DicomStatus.UnrecognizedOperation));
         }
 
-        public async Task<DicomNGetResponse> OnNGetRequestAsync(DicomNGetRequest request)
+        public Task<DicomNGetResponse> OnNGetRequestAsync(DicomNGetRequest request)
         {
             Logger.Log(LogLevel.Info, "receiving N-Get, not supported");
-            return new DicomNGetResponse(request, DicomStatus.UnrecognizedOperation);
+            return Task.FromResult(new DicomNGetResponse(request, DicomStatus.UnrecognizedOperation));
         }
 
-        public async Task<DicomNActionResponse> OnNActionRequestAsync(DicomNActionRequest request)
+        public Task<DicomNActionResponse> OnNActionRequestAsync(DicomNActionRequest request)
         {
             Logger.Log(LogLevel.Info, "receiving N-Action, not supported");
-            return new DicomNActionResponse(request, DicomStatus.UnrecognizedOperation);
+            return Task.FromResult(new DicomNActionResponse(request, DicomStatus.UnrecognizedOperation));
         }
 
         #endregion

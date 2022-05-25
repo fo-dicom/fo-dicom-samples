@@ -58,16 +58,17 @@ namespace QueryRetrieve_SCP
         public string CalledAE { get; protected set; }
 
 
-        public QRService(INetworkStream stream, Encoding fallbackEncoding, ILogger log, ILogManager logmanager, INetworkManager network, ITranscoderManager transcoder) : base(stream, fallbackEncoding, log, logmanager, network, transcoder)
+        public QRService(INetworkStream stream, Encoding fallbackEncoding, ILogger log, DicomServiceDependencies dependencies)
+                : base(stream, fallbackEncoding, log, dependencies)
         {
             /* initialization per association can be done here */
         }
 
 
-        public async Task<DicomCEchoResponse> OnCEchoRequestAsync(DicomCEchoRequest request)
+        public Task<DicomCEchoResponse> OnCEchoRequestAsync(DicomCEchoRequest request)
         {
             Logger.Info($"Received verification request from AE {CallingAE} with IP: {Association.RemoteHost}");
-            return new DicomCEchoResponse(request, DicomStatus.Success);
+            return Task.FromResult(new DicomCEchoResponse(request, DicomStatus.Success));
         }
 
 
