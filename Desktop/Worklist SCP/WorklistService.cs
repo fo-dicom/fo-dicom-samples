@@ -136,7 +136,7 @@ namespace Worklist_SCP
             }
             // on N-Create the UID is stored in AffectedSopInstanceUID, in N-Set the UID is stored in RequestedSopInstanceUID
             var affectedSopInstanceUID = request.Command.GetSingleValue<string>(DicomTag.AffectedSOPInstanceUID);
-            Logger.Log(LogLevel.Info, $"reeiving N-Create with SOPUID {affectedSopInstanceUID}");
+            Logger.Log(LogLevel.Info, $"receiving N-Create with SOPUID {affectedSopInstanceUID}");
             // get the procedureStepIds from the request
             var procedureStepId = request.Dataset
                 .GetSequence(DicomTag.ScheduledStepAttributesSequence)
