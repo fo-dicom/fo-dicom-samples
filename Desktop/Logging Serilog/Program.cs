@@ -1,10 +1,13 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
-using Dicom.Log;
+using FellowOakDicom;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Enrichers;
+using ILogger = Serilog.ILogger;
 
 namespace Dicom.Demo.SerilogDemo
 {
@@ -16,10 +19,12 @@ namespace Dicom.Demo.SerilogDemo
 
         private static void Main(string[] args)
         {
-            var serilogManager = UseGlobalSerilogLogger();
+            var serilogLogger = UseGlobalSerilogLogger();
 
-            // Initialize log manager.
-            LogManager.SetImplementation(serilogManager);
+            new DicomSetupBuilder()
+                .RegisterServices(services => services.AddLogging(logging => logging.AddSerilog(serilogLogger)))
+                .Build();
+                
 
             //Do some DICOM work
             var file = DicomFile.Open(@"..\..\..\DICOM Media\Data\Patient1\2.dcm");
@@ -28,9 +33,8 @@ namespace Dicom.Demo.SerilogDemo
             //file.Dataset.WriteToLog(LogManager.Default.GetLogger("dumpedDataset"), LogLevel.Info);
 
             //Other logging using fo-dicom's log abstraction
-            Dicom.Log.Logger foDicomLogger = LogManager.GetLogger("testLog");
-            foDicomLogger.Fatal("A fatal message at {dateTime}", DateTime.Now);
-            foDicomLogger.Debug("A debug for file {filename} - info: {@metaInfo}", file.File.Name, file.FileMetaInfo);
+            serilogLogger.Fatal("A fatal message at {dateTime}", DateTime.Now);
+            serilogLogger.Debug("A debug for file {filename} - info: {@metaInfo}", file.File.Name, file.FileMetaInfo);
 
             Console.WriteLine("Finished - hit enter to exit");
             Console.ReadLine();
@@ -39,7 +43,7 @@ namespace Dicom.Demo.SerilogDemo
         }
 
 
-        private static SerilogManager UseSpecificSerilogLogger()
+        private static ILogger UseSpecificSerilogLogger()
         {
             //Get a Serilog logger instance
             var logger = ConfigureLogging();
@@ -48,16 +52,16 @@ namespace Dicom.Demo.SerilogDemo
             logger = logger.ForContext("Purpose", "Demonstration");
 
             //Configure fo-dicom & Serilog
-            return new SerilogManager(logger);
+            return logger;
         }
 
-        private static SerilogManager UseGlobalSerilogLogger()
+        private static ILogger UseGlobalSerilogLogger()
         {
             //Configure logging
-            ConfigureLogging();
+            var logger = ConfigureLogging();
 
             //Configure fo-dicom & Serilog
-            return new SerilogManager();
+            return logger;
         }
 
 
@@ -74,15 +78,9 @@ namespace Dicom.Demo.SerilogDemo
                 //Accept verbose output  (there is effectively no filter)
                 .MinimumLevel.Verbose()
                 //Write out to the console using the "Literate" console sink (colours the text based on the logged type)
-                .WriteTo.LiterateConsole()
+                .WriteTo.Console()
                 //Also write out to a file based on the date and restrict these writes to warnings or worse (warning, error, fatal)
-                .WriteTo.RollingFile(@"Warnings_{Date}.txt", global::Serilog.Events.LogEventLevel.Warning);
-
-            if (useSeq)
-            {
-                //Send events to a default installation of Seq on the local computer
-                loggerConfig = loggerConfig.WriteTo.Seq("http://localhost:5341");
-            }
+                .WriteTo.File(@"Warnings_{Date}.txt", global::Serilog.Events.LogEventLevel.Warning);
 
             var logger = loggerConfig
                 //Take all of that configuration and make a logger

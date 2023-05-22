@@ -1,9 +1,9 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
-using FellowOakDicom.Log;
 
 namespace Worklist_SCP.Model
 {
@@ -37,7 +37,7 @@ namespace Worklist_SCP.Model
             }
 
             // now here change the sate of the procedure in the database or do similar stuff...
-            _logger.Info($"Procedure with id {workItem.ProcedureStepID} of Patient {workItem.Surname} {workItem.Forename} is started");
+            _logger.LogInformation($"Procedure with id {workItem.ProcedureStepID} of Patient {workItem.Surname} {workItem.Forename} is started");
 
             // remember the sopInstanceUID and store the worklistitem to which the sopInstanceUID belongs. 
             // You should do this more permanent like in database or in file
@@ -56,7 +56,7 @@ namespace Worklist_SCP.Model
             var workItem = PendingProcedures[sopInstanceUID];
 
             // now here change the sate of the procedure in the database or do similar stuff...
-            _logger.Info($"Procedure with id {workItem.ProcedureStepID} of Patient {workItem.Surname} {workItem.Forename} is discontinued for reason {reason}");
+            _logger.LogInformation($"Procedure with id {workItem.ProcedureStepID} of Patient {workItem.Surname} {workItem.Forename} is discontinued for reason {reason}");
 
             // since the procedure was stopped, we remove it from the list of pending procedures
             PendingProcedures.Remove(sopInstanceUID);
@@ -74,7 +74,7 @@ namespace Worklist_SCP.Model
             var workItem = PendingProcedures[sopInstanceUID];
 
             // now here change the sate of the procedure in the database or do similar stuff...
-            _logger.Info($"Procedure with id {workItem.ProcedureStepID} of Patient {workItem.Surname} {workItem.Forename} is completed");
+            _logger.LogInformation($"Procedure with id {workItem.ProcedureStepID} of Patient {workItem.Surname} {workItem.Forename} is completed");
 
             // the MPPS completed message contains some additional informations about the performed procedure.
             // this informations are very vendor depending, so read the DICOM Conformance Statement or read

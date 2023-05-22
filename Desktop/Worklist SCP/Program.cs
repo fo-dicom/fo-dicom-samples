@@ -1,8 +1,9 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using FellowOakDicom;
-using FellowOakDicom.Log;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace Worklist_SCP
@@ -20,7 +21,7 @@ namespace Worklist_SCP
         {
             // Initialize log manager.
             new DicomSetupBuilder()
-                   .RegisterServices(s => s.AddFellowOakDicom().AddLogManager<ConsoleLogManager>())
+                   .RegisterServices(s => s.AddFellowOakDicom().AddLogging(config => config.AddConsole()))
                    .Build();
 
             var port = args != null && args.Length > 0 && int.TryParse(args[0], out int tmp) ? tmp : 8005;

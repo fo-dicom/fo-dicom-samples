@@ -1,6 +1,6 @@
 Fellow Oak DICOM
 
-Copyright (C) 2012-2022 fo-dicom contributors
+Copyright (C) 2012-2023 fo-dicom contributors
 
 This software is licensed under the Microsoft Public License (MS-PL)
 

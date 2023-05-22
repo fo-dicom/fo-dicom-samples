@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FellowOakDicom.Imaging.Codec;
-using FellowOakDicom.Log;
 using FellowOakDicom.Network;
 using FellowOakDicom.Printing;
+using Microsoft.Extensions.Logging;
 
 namespace FellowOakDicom.Samples.Printing
 {
@@ -66,11 +65,11 @@ namespace FellowOakDicom.Samples.Printing
 
         public Task OnReceiveAssociationRequestAsync(DicomAssociation association)
         {
-            Logger.Info("Received association request from AE: {0} with IP: {1} ", association.CallingAE, association.RemoteHost);
+            Logger.LogInformation("Received association request from AE: {0} with IP: {1} ", association.CallingAE, association.RemoteHost);
 
             if (Printer.PrinterAet != association.CalledAE)
             {
-                Logger.Error(
+                Logger.LogError(
                     "Association with {0} rejected since requested printer {1} not found",
                     association.CallingAE,
                     association.CalledAE);
@@ -103,7 +102,7 @@ namespace FellowOakDicom.Samples.Printing
                 }
                 else
                 {
-                    Logger.Warn(
+                    Logger.LogWarning(
                         "Requested abstract syntax {abstractSyntax} from {callingAE} not supported",
                         pc.AbstractSyntax,
                         association.CallingAE);
@@ -111,7 +110,7 @@ namespace FellowOakDicom.Samples.Printing
                 }
             }
 
-            Logger.Info("Accepted association request from {callingAE}", association.CallingAE);
+            Logger.LogInformation("Accepted association request from {callingAE}", association.CallingAE);
             return SendAssociationAcceptAsync(association);
         }
 
@@ -125,7 +124,7 @@ namespace FellowOakDicom.Samples.Printing
         {
             //stop printing operation
             //log the abort reason
-            Logger.Error("Received abort from {0}, reason is {1}", source, reason);
+            Logger.LogError("Received abort from {0}, reason is {1}", source, reason);
         }
 
         public void OnConnectionClosed(Exception exception)
@@ -140,7 +139,7 @@ namespace FellowOakDicom.Samples.Printing
 
         public Task<DicomCEchoResponse> OnCEchoRequestAsync(DicomCEchoRequest request)
         {
-            Logger.Info("Received verification request from AE {0} with IP: {1}", CallingAE, Association.RemoteHost);
+            Logger.LogInformation("Received verification request from AE {0} with IP: {1}", CallingAE, Association.RemoteHost);
             return Task.FromResult(new DicomCEchoResponse(request, DicomStatus.Success));
         }
 
@@ -171,7 +170,7 @@ namespace FellowOakDicom.Samples.Printing
         {
             if (_filmSession != null)
             {
-                Logger.Error("Attemted to create new basic film session on association with {0}", CallingAE);
+                Logger.LogError("Attemted to create new basic film session on association with {0}", CallingAE);
                 SendAbortAsync(DicomAbortSource.ServiceProvider, DicomAbortReason.NotSpecified).Wait();
                 return new DicomNCreateResponse(request, DicomStatus.NoSuchObjectInstance);
             }
@@ -182,7 +181,7 @@ namespace FellowOakDicom.Samples.Printing
 
             _filmSession = new FilmSession(request.SOPClassUID, request.SOPInstanceUID, request.Dataset, isColor);
 
-            Logger.Info("Create new film session {0}", _filmSession.SOPInstanceUID.UID);
+            Logger.LogInformation("Create new film session {0}", _filmSession.SOPInstanceUID.UID);
             if (string.IsNullOrEmpty(request.SOPInstanceUID?.UID))
             {
                 request.Command.AddOrUpdate(DicomTag.AffectedSOPInstanceUID, _filmSession.SOPInstanceUID);
@@ -195,7 +194,7 @@ namespace FellowOakDicom.Samples.Printing
         {
             if (_filmSession == null)
             {
-                Logger.Error("A basic film session does not exist for this association {0}", CallingAE);
+                Logger.LogError("A basic film session does not exist for this association {0}", CallingAE);
                 SendAbortAsync(DicomAbortSource.ServiceProvider, DicomAbortReason.NotSpecified).Wait();
                 return new DicomNCreateResponse(request, DicomStatus.NoSuchObjectInstance);
             }
@@ -204,12 +203,12 @@ namespace FellowOakDicom.Samples.Printing
 
             if (!filmBox.Initialize())
             {
-                Logger.Error("Failed to initialize requested film box {0}", filmBox.SOPInstanceUID.UID);
+                Logger.LogError("Failed to initialize requested film box {0}", filmBox.SOPInstanceUID.UID);
                 SendAbortAsync(DicomAbortSource.ServiceProvider, DicomAbortReason.NotSpecified).Wait();
                 return new DicomNCreateResponse(request, DicomStatus.ProcessingFailure);
             }
 
-            Logger.Info("Created new film box {0}", filmBox.SOPInstanceUID.UID);
+            Logger.LogInformation("Created new film box {0}", filmBox.SOPInstanceUID.UID);
             if (string.IsNullOrEmpty(request.SOPInstanceUID?.UID))
             {
                 request.Command.AddOrUpdate(DicomTag.AffectedSOPInstanceUID, filmBox.SOPInstanceUID.UID);
@@ -249,7 +248,7 @@ namespace FellowOakDicom.Samples.Printing
         {
             if (_filmSession == null)
             {
-                Logger.Error("Can't delete a basic film session doesnot exist for this association {0}", CallingAE);
+                Logger.LogError("Can't delete a basic film session doesnot exist for this association {0}", CallingAE);
                 return new DicomNDeleteResponse(request, DicomStatus.NoSuchObjectInstance);
             }
 
@@ -265,13 +264,13 @@ namespace FellowOakDicom.Samples.Printing
         {
             if (_filmSession == null)
             {
-                Logger.Error("Can't delete a basic film session doesnot exist for this association {0}", CallingAE);
+                Logger.LogError("Can't delete a basic film session doesnot exist for this association {0}", CallingAE);
                 return new DicomNDeleteResponse(request, DicomStatus.NoSuchObjectInstance);
             }
 
             if (!request.SOPInstanceUID.Equals(_filmSession.SOPInstanceUID))
             {
-                Logger.Error(
+                Logger.LogError(
                     "Can't delete a basic film session with instace UID {0} doesnot exist for this association {1}",
                     request.SOPInstanceUID.UID,
                     CallingAE);
@@ -314,16 +313,16 @@ namespace FellowOakDicom.Samples.Printing
         {
             if (_filmSession == null)
             {
-                Logger.Error("A basic film session does not exist for this association {0}", CallingAE);
+                Logger.LogError("A basic film session does not exist for this association {0}", CallingAE);
                 return new DicomNSetResponse(request, DicomStatus.NoSuchObjectInstance);
             }
 
-            Logger.Info("Set image box {0}", request.SOPInstanceUID.UID);
+            Logger.LogInformation("Set image box {0}", request.SOPInstanceUID.UID);
 
             var imageBox = _filmSession.FindImageBox(request.SOPInstanceUID);
             if (imageBox == null)
             {
-                Logger.Error(
+                Logger.LogError(
                     "Received N-SET request for invalid image box instance {0} for this association {1}",
                     request.SOPInstanceUID.UID,
                     CallingAE);
@@ -339,16 +338,16 @@ namespace FellowOakDicom.Samples.Printing
         {
             if (_filmSession == null)
             {
-                Logger.Error("A basic film session does not exist for this association {0}", CallingAE);
+                Logger.LogError("A basic film session does not exist for this association {0}", CallingAE);
                 return new DicomNSetResponse(request, DicomStatus.NoSuchObjectInstance);
             }
 
-            Logger.Info("Set film box {0}", request.SOPInstanceUID.UID);
+            Logger.LogInformation("Set film box {0}", request.SOPInstanceUID.UID);
             var filmBox = _filmSession.FindFilmBox(request.SOPInstanceUID);
 
             if (filmBox == null)
             {
-                Logger.Error(
+                Logger.LogError(
                     "Received N-SET request for invalid film box {0} from {1}",
                     request.SOPInstanceUID.UID,
                     CallingAE);
@@ -369,11 +368,11 @@ namespace FellowOakDicom.Samples.Printing
         {
             if (_filmSession == null || _filmSession.SOPInstanceUID.UID != request.SOPInstanceUID.UID)
             {
-                Logger.Error("A basic film session does not exist for this association {0}", CallingAE);
+                Logger.LogError("A basic film session does not exist for this association {0}", CallingAE);
                 return new DicomNSetResponse(request, DicomStatus.NoSuchObjectInstance);
             }
 
-            Logger.Info("Set film session {0}", request.SOPInstanceUID.UID);
+            Logger.LogInformation("Set film session {0}", request.SOPInstanceUID.UID);
             request.Dataset.CopyTo(_filmSession);
 
             return new DicomNSetResponse(request, DicomStatus.Success);
@@ -387,7 +386,7 @@ namespace FellowOakDicom.Samples.Printing
         {
             lock (_synchRoot)
             {
-                Logger.Info(request.ToString(true));
+                Logger.LogInformation(request.ToString(true));
 
                 if (request.SOPClassUID == DicomUID.Printer
                     && request.SOPInstanceUID == DicomUID.PrinterInstance)
@@ -425,7 +424,7 @@ namespace FellowOakDicom.Samples.Printing
                     ds.Add(item, value);
                 }
 
-                Logger.Info(sb.ToString());
+                Logger.LogInformation(sb.ToString());
             }
             if (!ds.Any())
             {
@@ -445,7 +444,7 @@ namespace FellowOakDicom.Samples.Printing
                 Dataset = ds
             };
 
-            Logger.Info(response.ToString(true));
+            Logger.LogInformation(response.ToString(true));
             return response;
         }
 
@@ -484,7 +483,7 @@ namespace FellowOakDicom.Samples.Printing
                         dataset.Add(item, value);
                     }
 
-                    Logger.Info(sb.ToString());
+                    Logger.LogInformation(sb.ToString());
                 }
 
                 var response = new DicomNGetResponse(request, DicomStatus.Success)
@@ -508,7 +507,7 @@ namespace FellowOakDicom.Samples.Printing
         {
             if (_filmSession == null)
             {
-                Logger.Error("A basic film session does not exist for this association {0}", CallingAE);
+                Logger.LogError("A basic film session does not exist for this association {0}", CallingAE);
                 return Task.FromResult(new DicomNActionResponse(request, DicomStatus.InvalidObjectInstance));
             }
 
@@ -520,12 +519,12 @@ namespace FellowOakDicom.Samples.Printing
                     var filmBoxList = new List<FilmBox>();
                     if (request.SOPClassUID == DicomUID.BasicFilmSession && request.ActionTypeID == 0x0001)
                     {
-                        Logger.Info("Creating new print job for film session {0}", _filmSession.SOPInstanceUID.UID);
+                        Logger.LogInformation("Creating new print job for film session {0}", _filmSession.SOPInstanceUID.UID);
                         filmBoxList.AddRange(_filmSession.BasicFilmBoxes);
                     }
                     else if (request.SOPClassUID == DicomUID.BasicFilmBox && request.ActionTypeID == 0x0001)
                     {
-                        Logger.Info("Creating new print job for film box {0}", request.SOPInstanceUID.UID);
+                        Logger.LogInformation("Creating new print job for film box {0}", request.SOPInstanceUID.UID);
 
                         var filmBox = _filmSession.FindFilmBox(request.SOPInstanceUID);
                         if (filmBox != null)
@@ -534,7 +533,7 @@ namespace FellowOakDicom.Samples.Printing
                         }
                         else
                         {
-                            Logger.Error(
+                            Logger.LogError(
                                 "Received N-ACTION request for invalid film box {0} from {1}",
                                 request.SOPInstanceUID.UID,
                                 CallingAE);
@@ -545,7 +544,7 @@ namespace FellowOakDicom.Samples.Printing
                     {
                         if (request.ActionTypeID != 0x0001)
                         {
-                            Logger.Error(
+                            Logger.LogError(
                                 "Received N-ACTION request for invalid action type {0} from {1}",
                                 request.ActionTypeID,
                                 CallingAE);
@@ -553,7 +552,7 @@ namespace FellowOakDicom.Samples.Printing
                         }
                         else
                         {
-                            Logger.Error(
+                            Logger.LogError(
                                 "Received N-ACTION request for invalid SOP class {0} from {1}",
                                 request.SOPClassUID,
                                 CallingAE);
@@ -597,12 +596,12 @@ namespace FellowOakDicom.Samples.Printing
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(
+                    Logger.LogError(
                         "Error occured during N-ACTION {0} for SOP class {1} and instance {2}",
                         request.ActionTypeID,
                         request.SOPClassUID.UID,
                         request.SOPInstanceUID.UID);
-                    Logger.Error(ex.Message);
+                    Logger.LogError(ex.Message);
                     return Task.FromResult(new DicomNActionResponse(request, DicomStatus.ProcessingFailure));
                 }
             }

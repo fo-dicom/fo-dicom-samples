@@ -1,10 +1,11 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using FellowOakDicom;
-using FellowOakDicom.Log;
 using FellowOakDicom.Samples.Printing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Print_SCP
 {
@@ -16,7 +17,8 @@ namespace Print_SCP
         {
             // Initialize log manager.
             new DicomSetupBuilder()
-                   .RegisterServices(s => s.AddFellowOakDicom().AddLogManager<ConsoleLogManager>())
+                   .RegisterServices(s => s.AddFellowOakDicom().AddLogging(config => config.AddConsole())
+)
                    .Build();
 
             //This is a simple DICOM Print SCP implementation with Print Job and Send Event Report Support

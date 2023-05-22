@@ -1,11 +1,10 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using FellowOakDicom;
-using FellowOakDicom.Log;
 using FellowOakDicom.Network;
 using FellowOakDicom.Network.Client;
 using NLog.Config;
@@ -23,7 +22,7 @@ namespace ConsoleTest
 
                 // Initialize log manager.
                 new DicomSetupBuilder().RegisterServices(
-                   s => s.AddFellowOakDicom().AddLogManager<NLogManager>()
+                   s => s.AddFellowOakDicom()
                    ).Build();
 
                 DicomException.OnException += delegate (object sender, DicomExceptionEventArgs ea)

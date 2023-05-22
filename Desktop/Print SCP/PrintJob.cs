@@ -1,8 +1,8 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
-using FellowOakDicom.Log;
 using FellowOakDicom.Printing;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
@@ -344,11 +344,11 @@ namespace FellowOakDicom.Samples.Printing
 
             if (Status != PrintJobStatus.Failure)
             {
-                Log.Info("Print Job {0} Status {1}: {2}", SOPInstanceUID.UID.Split('.').Last(), Status, info);
+                Log.LogInformation("Print Job {0} Status {1}: {2}", SOPInstanceUID.UID.Split('.').Last(), Status, info);
             }
             else
             {
-                Log.Error("Print Job {0} Status {1}: {2}", SOPInstanceUID.UID.Split('.').Last(), Status, info);
+                Log.LogError("Print Job {0} Status {1}: {2}", SOPInstanceUID.UID.Split('.').Last(), Status, info);
             }
             StatusUpdate?.Invoke(this, new StatusUpdateEventArgs((ushort)Status, info, FilmSessionLabel, PrinterName));
         }

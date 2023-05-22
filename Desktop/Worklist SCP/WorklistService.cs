@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -7,8 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FellowOakDicom;
-using FellowOakDicom.Log;
 using FellowOakDicom.Network;
+using Microsoft.Extensions.Logging;
 using Worklist_SCP.Model;
 
 namespace Worklist_SCP
@@ -46,7 +46,7 @@ namespace Worklist_SCP
 
         public async Task<DicomCEchoResponse> OnCEchoRequestAsync(DicomCEchoRequest request)
         {
-            Logger.Info($"Received verification request from AE {Association.CallingAE} with IP: {Association.RemoteHost}");
+            Logger.LogInformation($"Received verification request from AE {Association.CallingAE} with IP: {Association.RemoteHost}");
             return new DicomCEchoResponse(request, DicomStatus.Success);
         }
 
@@ -79,7 +79,7 @@ namespace Worklist_SCP
         public void OnReceiveAbort(DicomAbortSource source, DicomAbortReason reason)
         {
             //log the abort reason
-            Logger.Error($"Received abort from {source}, reason is {reason}");
+            Logger.LogError($"Received abort from {source}, reason is {reason}");
         }
 
 
@@ -92,11 +92,11 @@ namespace Worklist_SCP
 
         public Task OnReceiveAssociationRequestAsync(DicomAssociation association)
         {
-            Logger.Info($"Received association request from AE: {association.CallingAE} with IP: {association.RemoteHost} ");
+            Logger.LogInformation($"Received association request from AE: {association.CallingAE} with IP: {association.RemoteHost} ");
 
             if (WorklistServer.AETitle != association.CalledAE)
             {
-                Logger.Error($"Association with {association.CallingAE} rejected since called aet {association.CalledAE} is unknown");
+                Logger.LogError($"Association with {association.CallingAE} rejected since called aet {association.CalledAE} is unknown");
                 return SendAssociationRejectAsync(DicomRejectResult.Permanent, DicomRejectSource.ServiceUser, DicomRejectReason.CalledAENotRecognized);
             }
 
@@ -112,12 +112,12 @@ namespace Worklist_SCP
                 }
                 else
                 {
-                    Logger.Warn($"Requested abstract syntax {pc.AbstractSyntax} from {association.CallingAE} not supported");
+                    Logger.LogWarning($"Requested abstract syntax {pc.AbstractSyntax} from {association.CallingAE} not supported");
                     pc.SetResult(DicomPresentationContextResult.RejectAbstractSyntaxNotSupported);
                 }
             }
 
-            Logger.Info($"Accepted association request from {association.CallingAE}");
+            Logger.LogInformation($"Accepted association request from {association.CallingAE}");
             return SendAssociationAcceptAsync(association);
         }
 
@@ -136,7 +136,7 @@ namespace Worklist_SCP
             }
             // on N-Create the UID is stored in AffectedSopInstanceUID, in N-Set the UID is stored in RequestedSopInstanceUID
             var affectedSopInstanceUID = request.Command.GetSingleValue<string>(DicomTag.AffectedSOPInstanceUID);
-            Logger.Log(LogLevel.Info, $"receiving N-Create with SOPUID {affectedSopInstanceUID}");
+            Logger.LogInformation($"receiving N-Create with SOPUID {affectedSopInstanceUID}");
             // get the procedureStepIds from the request
             var procedureStepId = request.Dataset
                 .GetSequence(DicomTag.ScheduledStepAttributesSequence)
@@ -156,7 +156,7 @@ namespace Worklist_SCP
             }
             // on N-Create the UID is stored in AffectedSopInstanceUID, in N-Set the UID is stored in RequestedSopInstanceUID
             var requestedSopInstanceUID = request.Command.GetSingleValue<string>(DicomTag.RequestedSOPInstanceUID);
-            Logger.Log(LogLevel.Info, $"receiving N-Set with SOPUID {requestedSopInstanceUID}");
+            Logger.LogInformation($"receiving N-Set with SOPUID {requestedSopInstanceUID}");
 
             var status = request.Dataset.GetSingleValue<string>(DicomTag.PerformedProcedureStepStatus);
             if (status == "COMPLETED")
@@ -204,25 +204,25 @@ namespace Worklist_SCP
 
         public Task<DicomNDeleteResponse> OnNDeleteRequestAsync(DicomNDeleteRequest request)
         {
-            Logger.Log(LogLevel.Info, "receiving N-Delete, not supported");
+            Logger.LogInformation("receiving N-Delete, not supported");
             return Task.FromResult(new DicomNDeleteResponse(request, DicomStatus.UnrecognizedOperation));
         }
 
         public Task<DicomNEventReportResponse> OnNEventReportRequestAsync(DicomNEventReportRequest request)
         {
-            Logger.Log(LogLevel.Info, "receiving N-Event, not supported");
+            Logger.LogInformation("receiving N-Event, not supported");
             return Task.FromResult(new DicomNEventReportResponse(request, DicomStatus.UnrecognizedOperation));
         }
 
         public Task<DicomNGetResponse> OnNGetRequestAsync(DicomNGetRequest request)
         {
-            Logger.Log(LogLevel.Info, "receiving N-Get, not supported");
+            Logger.LogInformation("receiving N-Get, not supported");
             return Task.FromResult(new DicomNGetResponse(request, DicomStatus.UnrecognizedOperation));
         }
 
         public Task<DicomNActionResponse> OnNActionRequestAsync(DicomNActionRequest request)
         {
-            Logger.Log(LogLevel.Info, "receiving N-Action, not supported");
+            Logger.LogInformation("receiving N-Action, not supported");
             return Task.FromResult(new DicomNActionResponse(request, DicomStatus.UnrecognizedOperation));
         }
 

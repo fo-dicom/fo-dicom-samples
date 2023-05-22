@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FellowOakDicom;
-using FellowOakDicom.Log;
 using FellowOakDicom.Network;
 using FellowOakDicom.Network.Client;
-
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Worklist_SCU
 {
@@ -23,7 +23,7 @@ namespace Worklist_SCU
         {
             // Initialize log manager.
             new DicomSetupBuilder()
-                .RegisterServices(s => s.AddFellowOakDicom().AddLogManager<ConsoleLogManager>())
+                .RegisterServices(s => s.AddFellowOakDicom().AddLogging(config => config.AddConsole()))
                 .Build();
 
             // set the connection parameters

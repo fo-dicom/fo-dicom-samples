@@ -1,21 +1,17 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
+using FellowOakDicom;
+using FellowOakDicom.Network;
+using FellowOakDicom.Network.Client;
+using Microsoft.Extensions.Logging;
+using QueryRetrieve_SCP.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FellowOakDicom;
-using FellowOakDicom.Log;
-using FellowOakDicom.Network;
-using QueryRetrieve_SCP.Model;
-using FellowOakDicom.Network.Client;
-using FellowOakDicom.Imaging.Codec;
 
 namespace QueryRetrieve_SCP
 {
@@ -67,7 +63,7 @@ namespace QueryRetrieve_SCP
 
         public Task<DicomCEchoResponse> OnCEchoRequestAsync(DicomCEchoRequest request)
         {
-            Logger.Info($"Received verification request from AE {CallingAE} with IP: {Association.RemoteHost}");
+            Logger.LogInformation($"Received verification request from AE {CallingAE} with IP: {Association.RemoteHost}");
             return Task.FromResult(new DicomCEchoResponse(request, DicomStatus.Success));
         }
 
@@ -81,7 +77,7 @@ namespace QueryRetrieve_SCP
         public void OnReceiveAbort(DicomAbortSource source, DicomAbortReason reason)
         {
             //log the abort reason
-            Logger.Error($"Received abort from {source}, reason is {reason}");
+            Logger.LogError($"Received abort from {source}, reason is {reason}");
         }
 
 
@@ -97,11 +93,11 @@ namespace QueryRetrieve_SCP
             CallingAE = association.CallingAE;
             CalledAE = association.CalledAE;
 
-            Logger.Info($"Received association request from AE: {CallingAE} with IP: {association.RemoteHost} ");
+            Logger.LogInformation($"Received association request from AE: {CallingAE} with IP: {association.RemoteHost} ");
 
             if (QRServer.AETitle != CalledAE)
             {
-                Logger.Error($"Association with {CallingAE} rejected since called aet {CalledAE} is unknown");
+                Logger.LogError($"Association with {CallingAE} rejected since called aet {CalledAE} is unknown");
                 return SendAssociationRejectAsync(DicomRejectResult.Permanent, DicomRejectSource.ServiceUser, DicomRejectReason.CalledAENotRecognized);
             }
 
@@ -126,12 +122,12 @@ namespace QueryRetrieve_SCP
                 }
                 else
                 {
-                    Logger.Warn($"Requested abstract syntax {pc.AbstractSyntax} from {CallingAE} not supported");
+                    Logger.LogWarning($"Requested abstract syntax {pc.AbstractSyntax} from {CallingAE} not supported");
                     pc.SetResult(DicomPresentationContextResult.RejectAbstractSyntaxNotSupported);
                 }
             }
 
-            Logger.Info($"Accepted association request from {CallingAE}");
+            Logger.LogInformation($"Accepted association request from {CallingAE}");
             return SendAssociationAcceptAsync(association);
         }
 
@@ -275,12 +271,12 @@ namespace QueryRetrieve_SCP
                 {
                     if (resp.Status == DicomStatus.Success)
                     {
-                        Logger.Info("Storage of image successfull");
+                        Logger.LogInformation("Storage of image successfull");
                         storeDone++;
                     }
                     else
                     {
-                        Logger.Error("Storage of image failed");
+                        Logger.LogError("Storage of image failed");
                         storeFailure++;
                     }
                 };
@@ -296,7 +292,7 @@ namespace QueryRetrieve_SCP
                 Thread.Sleep(TimeSpan.FromSeconds(2));
             }
 
-            Logger.Info("..finished");
+            Logger.LogInformation("..finished");
             yield return new DicomCMoveResponse(request, DicomStatus.Success);
         }
 

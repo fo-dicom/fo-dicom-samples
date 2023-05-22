@@ -1,11 +1,12 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using System;
 using System.Drawing;
 using FellowOakDicom;
 using FellowOakDicom.Imaging;
-using FellowOakDicom.Log;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Print_SCU
 {
@@ -18,7 +19,7 @@ namespace Print_SCU
             new DicomSetupBuilder()
                 .RegisterServices(s => s
                     .AddFellowOakDicom()
-                    .AddLogManager<ConsoleLogManager>()
+                    .AddLogging(config => config.AddConsole())
                     .AddImageManager<WinFormsImageManager>())
                 .Build();
 

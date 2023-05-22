@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012-2022 fo-dicom contributors.
+﻿// Copyright (c) 2012-2023 fo-dicom contributors.
 // Licensed under the Microsoft Public License (MS-PL).
 
 using FellowOakDicom;
@@ -9,7 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FellowOakDicom.Network.Client;
-
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace QueryRetrieve_SCU
 {
@@ -27,6 +28,11 @@ namespace QueryRetrieve_SCU
 
         static async Task Main(string[] args)
         {
+            // Initialize log manager.
+            new DicomSetupBuilder()
+                .RegisterServices(s => s.AddFellowOakDicom().AddLogging(config => config.AddConsole()))
+                .Build();
+
             var client = DicomClientFactory.Create(_qrServerHost, _qrServerPort, false, _aet, _qrServerAET);
             client.NegotiateAsyncOps();
 
