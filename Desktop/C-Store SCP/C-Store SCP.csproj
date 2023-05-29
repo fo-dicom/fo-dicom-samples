@@ -70,8 +70,8 @@
     <Reference Include="Dicom.NativeCodecs, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\fo-dicom.Codecs.5.10.5\lib\netstandard2.0\Dicom.NativeCodecs.dll</HintPath>
     </Reference>
-    <Reference Include="fo-dicom.core, Version=5.1.0.0, Culture=neutral, PublicKeyToken=3a13f649e28eb09a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\fo-dicom.5.1.0\lib\netstandard2.0\fo-dicom.core.dll</HintPath>
+    <Reference Include="fo-dicom.core, Version=5.1.1.0, Culture=neutral, PublicKeyToken=3a13f649e28eb09a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\fo-dicom.5.1.1\lib\netstandard2.0\fo-dicom.core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Bcl.AsyncInterfaces.6.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
