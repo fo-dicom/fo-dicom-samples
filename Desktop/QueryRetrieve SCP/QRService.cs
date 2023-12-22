@@ -280,7 +280,7 @@ namespace QueryRetrieve_SCP
                         storeFailure++;
                     }
                 };
-                client.AddRequestAsync(storeRequest).Wait();
+                await client.AddRequestAsync(storeRequest);
             }
 
             var sendTask = client.SendAsync();
@@ -324,7 +324,7 @@ namespace QueryRetrieve_SCP
             foreach (var matchingFile in matchingFiles)
             {
                 var storeRequest = new DicomCStoreRequest(matchingFile);
-                SendRequestAsync(storeRequest).Wait();
+                await SendRequestAsync(storeRequest);
             }
 
             yield return new DicomCGetResponse(request, DicomStatus.Success);
