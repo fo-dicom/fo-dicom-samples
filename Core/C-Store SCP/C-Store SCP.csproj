@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>FellowOakDicom.Samples.CStoreSCP</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="fo-dicom" Version="5.2.0" />
+		<PackageReference Include="fo-dicom.Codecs" Version="5.15.4" />
+	</ItemGroup>
+
+</Project>
