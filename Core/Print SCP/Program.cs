@@ -2,6 +2,7 @@
 // Licensed under the Microsoft Public License (MS-PL).
 
 using FellowOakDicom;
+using FellowOakDicom.Imaging;
 using FellowOakDicom.Samples.PrintSCP;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 new DicomSetupBuilder()
     .RegisterServices(s => s
         .AddFellowOakDicom()
+        .AddImageManager<WinFormsImageManager>()
         .AddLogging(config => config.AddConsole())
     )
     .Build();
