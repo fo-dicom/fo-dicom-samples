@@ -9,10 +9,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="fo-dicom" Version="5.2.0" />
-		<PackageReference Include="fo-dicom.Codecs" Version="5.15.4" />
-		<PackageReference Include="fo-dicom.Imaging.ImageSharp.NetStandard" Version="5.2.0" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="2.1.9" />
+		<PackageReference Include="fo-dicom" Version="5.2.5" />
+		<PackageReference Include="fo-dicom.Codecs" Version="5.16.4" />
+		<PackageReference Include="fo-dicom.Imaging.ImageSharp.NetStandard" Version="5.2.5" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="2.1.12" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
 	</ItemGroup>
 

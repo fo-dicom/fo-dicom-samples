@@ -9,9 +9,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="fo-dicom" Version="5.2.0" />
-		<PackageReference Include="fo-dicom.Codecs" Version="5.15.4" />
-		<PackageReference Include="fo-dicom.Imaging.Desktop" Version="5.2.0" />
+		<PackageReference Include="fo-dicom" Version="5.2.5" />
+		<PackageReference Include="fo-dicom.Codecs" Version="5.16.4" />
+		<PackageReference Include="fo-dicom.Imaging.Desktop" Version="5.2.5" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
 	</ItemGroup>
 

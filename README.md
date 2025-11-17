@@ -1,7 +1,7 @@
 <img src="https://lh3.googleusercontent.com/-Fq3nigRUo7U/VfaIPuJMjfI/AAAAAAAAALo/7oaLrrTBhnw/s1600/Fellow%2BOak%2BSquare%2BTransp.png" alt="fo-dicom logo" height="80" />
 
 # Fellow Oak DICOM Samples
-**Sample applications associated with the [fo-dicom](https://github.com/fo-dicom/fo-dicom) framework, version 5.2.0**
+**Sample applications associated with the [fo-dicom](https://github.com/fo-dicom/fo-dicom) framework, version 5.2.5**
 
 ### Contributions
 Sample contributions from the community are more than welcome. Make a pull request of your sample application for our prompt consideration.
@@ -28,5 +28,6 @@ If you encounter issues with any of the samples, please report on the [fo-dicom-
 
 <br />
 <br />
+
 **Enjoy!**  
 The *fo-dicom* contributors
